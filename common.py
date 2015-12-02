@@ -2,12 +2,13 @@
 __author__ = 'djstava@gmail.com'
 
 PREVIOUS_DATA = '001122334455'
+FLAG_DEVICE_ONLINE = False
 HOWTOTEXT = "1、当Android设备以fastboot模式上线时，顶部的文本框中会显示当前连接设备的ID号\r\n" \
             "2、选择相应的镜像文件,默认情况下会自动选择当前toc目录下的对应文件\r\n" \
             "3、单独烧录请点击对应镜像后面的烧录按钮\r\n" \
             "4、全部烧录按钮会根据当前选中的镜像文件依次进行烧录\r\n" \
             "5、烧录完毕后可以选择重启设备或继续启动\r\n" \
-            "6、如有任何问题或建议，请联系gaoxiang.xu@longjingtech.com"
+            "6、如有任何问题或建议，请联系djstava@gmail.com\r\n"
 
 BBCB_OFFSET = 0x200000
 BBCB_STRUCT_SIZE = 24
@@ -37,4 +38,12 @@ USERDATA_ADDRESS = "Oo37b000"
 
 BURN_ERROR_KEYWORD = "FAILED"
 FLASH_PREFIX = "fastboot.exe flash "
-PMP_ADDRESS = "pmp"
+PMP_ADDRESS = " pmp "
+
+FLASH_REBOOT = "fastboot.exe reboot"
+FLASH_CONTINUE = "fastboot.exe continue"
+
+LOGFILE = "PyQt5Fastboot.log"
+BURNSUCCESS = "恭喜您"
+BURNERROR = "很抱歉"
+HOWTOUSE = "软件使用方法"
