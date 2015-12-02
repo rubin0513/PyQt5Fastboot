@@ -4,10 +4,9 @@ __author__ = 'djstava@gmail.com'
 # -*- coding: utf-8 -*-
 
 import sys
-import logging
 
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtWidgets import QApplication , QMainWindow
+from PyQt5.QtGui import QIcon
 
 from ui import *
 import common
@@ -19,8 +18,8 @@ def initLogConfiguration():
     logging.basicConfig(level = logging.DEBUG,
                         filename = common.LOGFILE,
                         filemode = 'a+',
-                        format='%(asctime)s - %(filename)s - line %(lineno)-4d - %(levelname)s - %(message)s',
-                        datefmt='%m-%d %H:%M')
+                        format = '%(asctime)s - %(filename)s - line %(lineno)-4d - %(levelname)s - %(message)s',
+                        datefmt = '%m-%d %H:%M')
 
 if __name__ == '__main__':
     '''

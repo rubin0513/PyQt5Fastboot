@@ -17,6 +17,8 @@ from PyQt5.QtWidgets import QMessageBox
 
 from detectThread import *
 from fastboot import lj_get_default_image_path
+from fastboot import lj_generate_random_number
+from fastboot import lj_generate_bcd_code
 
 import common
 
@@ -38,7 +40,7 @@ class Ui_MainWindow(object):
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.layoutWidget = QtWidgets.QWidget(self.centralwidget)
-        self.layoutWidget.setGeometry(QtCore.QRect(410, 30, 368, 42))
+        self.layoutWidget.setGeometry(QtCore.QRect(430, 10, 368, 42))
         self.layoutWidget.setObjectName("layoutWidget")
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout(self.layoutWidget)
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
@@ -62,7 +64,7 @@ class Ui_MainWindow(object):
         self.textBrowser_device_id.setObjectName("textBrowser_device_id")
         self.horizontalLayout_3.addWidget(self.textBrowser_device_id)
         self.layoutWidget1 = QtWidgets.QWidget(self.centralwidget)
-        self.layoutWidget1.setGeometry(QtCore.QRect(350, 620, 411, 61))
+        self.layoutWidget1.setGeometry(QtCore.QRect(430, 610, 411, 61))
         self.layoutWidget1.setObjectName("layoutWidget1")
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.layoutWidget1)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
@@ -93,7 +95,7 @@ class Ui_MainWindow(object):
         self.button_continue.setObjectName("button_continue")
         self.horizontalLayout_2.addWidget(self.button_continue)
         self.button_flash_bbcb = QtWidgets.QPushButton(self.centralwidget)
-        self.button_flash_bbcb.setGeometry(QtCore.QRect(340, 170, 80, 40))
+        self.button_flash_bbcb.setGeometry(QtCore.QRect(720, 160, 80, 40))
         self.button_flash_bbcb.setMinimumSize(QtCore.QSize(80, 40))
         self.button_flash_bbcb.setMaximumSize(QtCore.QSize(80, 40))
         font = QtGui.QFont()
@@ -102,114 +104,117 @@ class Ui_MainWindow(object):
         self.button_flash_bbcb.setFont(font)
         self.button_flash_bbcb.setObjectName("button_flash_bbcb")
         self.layoutWidget2 = QtWidgets.QWidget(self.centralwidget)
-        self.layoutWidget2.setGeometry(QtCore.QRect(110, 83, 211, 224))
+        self.layoutWidget2.setGeometry(QtCore.QRect(470, 80, 231, 201))
         self.layoutWidget2.setObjectName("layoutWidget2")
-        self.verticalLayout_4 = QtWidgets.QVBoxLayout(self.layoutWidget2)
-        self.verticalLayout_4.setObjectName("verticalLayout_4")
-        self.horizontalLayout_17 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_17.setObjectName("horizontalLayout_17")
+        self.horizontalLayout_4 = QtWidgets.QHBoxLayout(self.layoutWidget2)
+        self.horizontalLayout_4.setObjectName("horizontalLayout_4")
+        self.verticalLayout_5 = QtWidgets.QVBoxLayout()
+        self.verticalLayout_5.setObjectName("verticalLayout_5")
         self.label_manu_id = QtWidgets.QLabel(self.layoutWidget2)
-        self.label_manu_id.setMinimumSize(QtCore.QSize(100, 30))
-        self.label_manu_id.setMaximumSize(QtCore.QSize(100, 30))
+        self.label_manu_id.setMinimumSize(QtCore.QSize(110, 20))
+        self.label_manu_id.setMaximumSize(QtCore.QSize(110, 20))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.label_manu_id.setFont(font)
         self.label_manu_id.setObjectName("label_manu_id")
-        self.horizontalLayout_17.addWidget(self.label_manu_id)
-        self.lineEdit_manu_id = QtWidgets.QLineEdit(self.layoutWidget2)
-        self.lineEdit_manu_id.setMinimumSize(QtCore.QSize(100, 30))
-        self.lineEdit_manu_id.setMaximumSize(QtCore.QSize(100, 30))
-        self.lineEdit_manu_id.setText("")
-        self.lineEdit_manu_id.setObjectName("lineEdit_manu_id")
-        self.horizontalLayout_17.addWidget(self.lineEdit_manu_id)
-        self.verticalLayout_4.addLayout(self.horizontalLayout_17)
-        self.horizontalLayout_16 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_16.setObjectName("horizontalLayout_16")
+        self.verticalLayout_5.addWidget(self.label_manu_id)
         self.label_hd_code = QtWidgets.QLabel(self.layoutWidget2)
-        self.label_hd_code.setMinimumSize(QtCore.QSize(100, 30))
-        self.label_hd_code.setMaximumSize(QtCore.QSize(100, 30))
+        self.label_hd_code.setMinimumSize(QtCore.QSize(110, 20))
+        self.label_hd_code.setMaximumSize(QtCore.QSize(110, 20))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.label_hd_code.setFont(font)
         self.label_hd_code.setObjectName("label_hd_code")
-        self.horizontalLayout_16.addWidget(self.label_hd_code)
-        self.lineEdit_hd_code = QtWidgets.QLineEdit(self.layoutWidget2)
-        self.lineEdit_hd_code.setMinimumSize(QtCore.QSize(100, 30))
-        self.lineEdit_hd_code.setMaximumSize(QtCore.QSize(100, 30))
-        self.lineEdit_hd_code.setText("")
-        self.lineEdit_hd_code.setObjectName("lineEdit_hd_code")
-        self.horizontalLayout_16.addWidget(self.lineEdit_hd_code)
-        self.verticalLayout_4.addLayout(self.horizontalLayout_16)
-        self.horizontalLayout_15 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_15.setObjectName("horizontalLayout_15")
+        self.verticalLayout_5.addWidget(self.label_hd_code)
         self.label_loader_major = QtWidgets.QLabel(self.layoutWidget2)
-        self.label_loader_major.setMinimumSize(QtCore.QSize(100, 30))
-        self.label_loader_major.setMaximumSize(QtCore.QSize(100, 30))
+        self.label_loader_major.setMinimumSize(QtCore.QSize(110, 20))
+        self.label_loader_major.setMaximumSize(QtCore.QSize(110, 20))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.label_loader_major.setFont(font)
         self.label_loader_major.setObjectName("label_loader_major")
-        self.horizontalLayout_15.addWidget(self.label_loader_major)
-        self.lineEdit_loader_major = QtWidgets.QLineEdit(self.layoutWidget2)
-        self.lineEdit_loader_major.setMinimumSize(QtCore.QSize(100, 30))
-        self.lineEdit_loader_major.setMaximumSize(QtCore.QSize(100, 30))
-        self.lineEdit_loader_major.setText("")
-        self.lineEdit_loader_major.setObjectName("lineEdit_loader_major")
-        self.horizontalLayout_15.addWidget(self.lineEdit_loader_major)
-        self.verticalLayout_4.addLayout(self.horizontalLayout_15)
-        self.horizontalLayout_14 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_14.setObjectName("horizontalLayout_14")
+        self.verticalLayout_5.addWidget(self.label_loader_major)
         self.label_loader_minor = QtWidgets.QLabel(self.layoutWidget2)
-        self.label_loader_minor.setMinimumSize(QtCore.QSize(100, 30))
-        self.label_loader_minor.setMaximumSize(QtCore.QSize(100, 30))
+        self.label_loader_minor.setMinimumSize(QtCore.QSize(110, 20))
+        self.label_loader_minor.setMaximumSize(QtCore.QSize(110, 20))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.label_loader_minor.setFont(font)
         self.label_loader_minor.setObjectName("label_loader_minor")
-        self.horizontalLayout_14.addWidget(self.label_loader_minor)
-        self.lineEdit_loader_minor = QtWidgets.QLineEdit(self.layoutWidget2)
-        self.lineEdit_loader_minor.setMinimumSize(QtCore.QSize(100, 30))
-        self.lineEdit_loader_minor.setMaximumSize(QtCore.QSize(100, 30))
-        self.lineEdit_loader_minor.setText("")
-        self.lineEdit_loader_minor.setObjectName("lineEdit_loader_minor")
-        self.horizontalLayout_14.addWidget(self.lineEdit_loader_minor)
-        self.verticalLayout_4.addLayout(self.horizontalLayout_14)
-        self.horizontalLayout_5 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_5.setObjectName("horizontalLayout_5")
+        self.verticalLayout_5.addWidget(self.label_loader_minor)
         self.label_loader_type = QtWidgets.QLabel(self.layoutWidget2)
-        self.label_loader_type.setMinimumSize(QtCore.QSize(100, 30))
-        self.label_loader_type.setMaximumSize(QtCore.QSize(100, 30))
+        self.label_loader_type.setMinimumSize(QtCore.QSize(110, 20))
+        self.label_loader_type.setMaximumSize(QtCore.QSize(110, 20))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.label_loader_type.setFont(font)
         self.label_loader_type.setObjectName("label_loader_type")
-        self.horizontalLayout_5.addWidget(self.label_loader_type)
-        self.lineEdit_loader_type = QtWidgets.QLineEdit(self.layoutWidget2)
-        self.lineEdit_loader_type.setMinimumSize(QtCore.QSize(100, 30))
-        self.lineEdit_loader_type.setMaximumSize(QtCore.QSize(100, 30))
-        self.lineEdit_loader_type.setText("")
-        self.lineEdit_loader_type.setObjectName("lineEdit_loader_type")
-        self.horizontalLayout_5.addWidget(self.lineEdit_loader_type)
-        self.verticalLayout_4.addLayout(self.horizontalLayout_5)
-        self.horizontalLayout_13 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_13.setObjectName("horizontalLayout_13")
+        self.verticalLayout_5.addWidget(self.label_loader_type)
         self.label_serial_number = QtWidgets.QLabel(self.layoutWidget2)
-        self.label_serial_number.setMinimumSize(QtCore.QSize(100, 30))
-        self.label_serial_number.setMaximumSize(QtCore.QSize(100, 30))
+        self.label_serial_number.setMinimumSize(QtCore.QSize(110, 20))
+        self.label_serial_number.setMaximumSize(QtCore.QSize(110, 20))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.label_serial_number.setFont(font)
         self.label_serial_number.setObjectName("label_serial_number")
-        self.horizontalLayout_13.addWidget(self.label_serial_number)
+        self.verticalLayout_5.addWidget(self.label_serial_number)
+        self.label_random_number = QtWidgets.QLabel(self.layoutWidget2)
+        self.label_random_number.setMinimumSize(QtCore.QSize(110, 20))
+        self.label_random_number.setMaximumSize(QtCore.QSize(110, 20))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.label_random_number.setFont(font)
+        self.label_random_number.setObjectName("label_random_number")
+        self.verticalLayout_5.addWidget(self.label_random_number)
+        self.horizontalLayout_4.addLayout(self.verticalLayout_5)
+        self.verticalLayout_4 = QtWidgets.QVBoxLayout()
+        self.verticalLayout_4.setContentsMargins(8, -1, -1, -1)
+        self.verticalLayout_4.setObjectName("verticalLayout_4")
+        self.lineEdit_manu_id = QtWidgets.QLineEdit(self.layoutWidget2)
+        self.lineEdit_manu_id.setMinimumSize(QtCore.QSize(100, 20))
+        self.lineEdit_manu_id.setMaximumSize(QtCore.QSize(100, 20))
+        self.lineEdit_manu_id.setText("")
+        self.lineEdit_manu_id.setObjectName("lineEdit_manu_id")
+        self.verticalLayout_4.addWidget(self.lineEdit_manu_id)
+        self.lineEdit_hd_code = QtWidgets.QLineEdit(self.layoutWidget2)
+        self.lineEdit_hd_code.setMinimumSize(QtCore.QSize(100, 20))
+        self.lineEdit_hd_code.setMaximumSize(QtCore.QSize(100, 20))
+        self.lineEdit_hd_code.setText("")
+        self.lineEdit_hd_code.setObjectName("lineEdit_hd_code")
+        self.verticalLayout_4.addWidget(self.lineEdit_hd_code)
+        self.lineEdit_loader_major = QtWidgets.QLineEdit(self.layoutWidget2)
+        self.lineEdit_loader_major.setMinimumSize(QtCore.QSize(100, 20))
+        self.lineEdit_loader_major.setMaximumSize(QtCore.QSize(100, 20))
+        self.lineEdit_loader_major.setText("")
+        self.lineEdit_loader_major.setObjectName("lineEdit_loader_major")
+        self.verticalLayout_4.addWidget(self.lineEdit_loader_major)
+        self.lineEdit_loader_minor_2 = QtWidgets.QLineEdit(self.layoutWidget2)
+        self.lineEdit_loader_minor_2.setMinimumSize(QtCore.QSize(100, 20))
+        self.lineEdit_loader_minor_2.setMaximumSize(QtCore.QSize(100, 20))
+        self.lineEdit_loader_minor_2.setText("")
+        self.lineEdit_loader_minor_2.setObjectName("lineEdit_loader_minor_2")
+        self.verticalLayout_4.addWidget(self.lineEdit_loader_minor_2)
+        self.lineEdit_loader_type = QtWidgets.QLineEdit(self.layoutWidget2)
+        self.lineEdit_loader_type.setMinimumSize(QtCore.QSize(100, 20))
+        self.lineEdit_loader_type.setMaximumSize(QtCore.QSize(100, 20))
+        self.lineEdit_loader_type.setText("")
+        self.lineEdit_loader_type.setObjectName("lineEdit_loader_type")
+        self.verticalLayout_4.addWidget(self.lineEdit_loader_type)
         self.lineEdit_serial_number = QtWidgets.QLineEdit(self.layoutWidget2)
-        self.lineEdit_serial_number.setMinimumSize(QtCore.QSize(100, 30))
-        self.lineEdit_serial_number.setMaximumSize(QtCore.QSize(100, 30))
+        self.lineEdit_serial_number.setMinimumSize(QtCore.QSize(100, 20))
+        self.lineEdit_serial_number.setMaximumSize(QtCore.QSize(100, 20))
         self.lineEdit_serial_number.setText("")
         self.lineEdit_serial_number.setObjectName("lineEdit_serial_number")
-        self.horizontalLayout_13.addWidget(self.lineEdit_serial_number)
-        self.verticalLayout_4.addLayout(self.horizontalLayout_13)
+        self.verticalLayout_4.addWidget(self.lineEdit_serial_number)
+        self.lineEdit_random_number = QtWidgets.QLineEdit(self.layoutWidget2)
+        self.lineEdit_random_number.setMinimumSize(QtCore.QSize(100, 20))
+        self.lineEdit_random_number.setMaximumSize(QtCore.QSize(100, 20))
+        self.lineEdit_random_number.setText("")
+        self.lineEdit_random_number.setObjectName("lineEdit_random_number")
+        self.verticalLayout_4.addWidget(self.lineEdit_random_number)
+        self.horizontalLayout_4.addLayout(self.verticalLayout_4)
         self.widget = QtWidgets.QWidget(self.centralwidget)
-        self.widget.setGeometry(QtCore.QRect(230, 324, 667, 274))
+        self.widget.setGeometry(QtCore.QRect(282, 310, 717, 274))
         self.widget.setObjectName("widget")
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.widget)
         self.horizontalLayout.setObjectName("horizontalLayout")
@@ -297,8 +302,8 @@ class Ui_MainWindow(object):
         self.verticalLayout_2 = QtWidgets.QVBoxLayout()
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.lineEdit_pmp = QtWidgets.QLineEdit(self.widget)
-        self.lineEdit_pmp.setMinimumSize(QtCore.QSize(400, 40))
-        self.lineEdit_pmp.setMaximumSize(QtCore.QSize(400, 40))
+        self.lineEdit_pmp.setMinimumSize(QtCore.QSize(450, 40))
+        self.lineEdit_pmp.setMaximumSize(QtCore.QSize(450, 40))
         font = QtGui.QFont()
         font.setPointSize(12)
         self.lineEdit_pmp.setFont(font)
@@ -306,40 +311,40 @@ class Ui_MainWindow(object):
         self.lineEdit_pmp.setObjectName("lineEdit_pmp")
         self.verticalLayout_2.addWidget(self.lineEdit_pmp)
         self.lineEdit_secboot = QtWidgets.QLineEdit(self.widget)
-        self.lineEdit_secboot.setMinimumSize(QtCore.QSize(400, 40))
-        self.lineEdit_secboot.setMaximumSize(QtCore.QSize(400, 40))
+        self.lineEdit_secboot.setMinimumSize(QtCore.QSize(450, 40))
+        self.lineEdit_secboot.setMaximumSize(QtCore.QSize(450, 40))
         font = QtGui.QFont()
         font.setPointSize(12)
         self.lineEdit_secboot.setFont(font)
         self.lineEdit_secboot.setObjectName("lineEdit_secboot")
         self.verticalLayout_2.addWidget(self.lineEdit_secboot)
         self.lineEdit_secos = QtWidgets.QLineEdit(self.widget)
-        self.lineEdit_secos.setMinimumSize(QtCore.QSize(400, 40))
-        self.lineEdit_secos.setMaximumSize(QtCore.QSize(400, 40))
+        self.lineEdit_secos.setMinimumSize(QtCore.QSize(450, 40))
+        self.lineEdit_secos.setMaximumSize(QtCore.QSize(450, 40))
         font = QtGui.QFont()
         font.setPointSize(12)
         self.lineEdit_secos.setFont(font)
         self.lineEdit_secos.setObjectName("lineEdit_secos")
         self.verticalLayout_2.addWidget(self.lineEdit_secos)
         self.lineEdit_uboot = QtWidgets.QLineEdit(self.widget)
-        self.lineEdit_uboot.setMinimumSize(QtCore.QSize(400, 40))
-        self.lineEdit_uboot.setMaximumSize(QtCore.QSize(400, 40))
+        self.lineEdit_uboot.setMinimumSize(QtCore.QSize(450, 40))
+        self.lineEdit_uboot.setMaximumSize(QtCore.QSize(450, 40))
         font = QtGui.QFont()
         font.setPointSize(12)
         self.lineEdit_uboot.setFont(font)
         self.lineEdit_uboot.setObjectName("lineEdit_uboot")
         self.verticalLayout_2.addWidget(self.lineEdit_uboot)
         self.lineEdit_dev_tree = QtWidgets.QLineEdit(self.widget)
-        self.lineEdit_dev_tree.setMinimumSize(QtCore.QSize(400, 40))
-        self.lineEdit_dev_tree.setMaximumSize(QtCore.QSize(400, 40))
+        self.lineEdit_dev_tree.setMinimumSize(QtCore.QSize(450, 40))
+        self.lineEdit_dev_tree.setMaximumSize(QtCore.QSize(450, 40))
         font = QtGui.QFont()
         font.setPointSize(12)
         self.lineEdit_dev_tree.setFont(font)
         self.lineEdit_dev_tree.setObjectName("lineEdit_dev_tree")
         self.verticalLayout_2.addWidget(self.lineEdit_dev_tree)
         self.lineEdit_otaloader = QtWidgets.QLineEdit(self.widget)
-        self.lineEdit_otaloader.setMinimumSize(QtCore.QSize(400, 40))
-        self.lineEdit_otaloader.setMaximumSize(QtCore.QSize(400, 40))
+        self.lineEdit_otaloader.setMinimumSize(QtCore.QSize(450, 40))
+        self.lineEdit_otaloader.setMaximumSize(QtCore.QSize(450, 40))
         font = QtGui.QFont()
         font.setPointSize(12)
         self.lineEdit_otaloader.setFont(font)
@@ -457,6 +462,8 @@ class Ui_MainWindow(object):
         self.lineEdit_secboot.setFont(font)
         self.lineEdit_secos.setFont(font)
         self.lineEdit_uboot.setFont(font)
+        self.lineEdit_dev_tree.setFont(font)
+        self.lineEdit_otaloader.setFont(font)
 
         if(os.path.exists("toc\\pmp.toc")):
             self.lineEdit_pmp.setText(lj_get_default_image_path("toc\\pmp.toc"))
@@ -477,32 +484,36 @@ class Ui_MainWindow(object):
             self.lineEdit_otaloader.setText(lj_get_default_image_path("toc\\otaloader.img"))
 
         self.retranslateUi(MainWindow)
-        self.button_flash_all.clicked.connect(self.lj_flash_all)
-        self.button_continue.clicked.connect(self.lj_continue)
+
         self.lineEdit_pmp.selectionChanged.connect(self.lj_select_pmp_image_file)
         self.lineEdit_secboot.selectionChanged.connect(self.lj_select_secboot_image_file)
         self.lineEdit_secos.selectionChanged.connect(self.lj_select_secos_image_file)
         self.lineEdit_uboot.selectionChanged.connect(self.lj_select_uboot_image_file)
         self.lineEdit_dev_tree.selectionChanged.connect(self.lj_select_devtree_image_file)
         self.lineEdit_otaloader.selectionChanged.connect(self.lj_select_otaloader_file)
+
+        self.button_flash_bbcb.clicked.connect(self.lj_flash_nvram)
         self.button_burn_pmp.clicked.connect(self.lj_flash_pmp)
         self.button_burn_secboot.clicked.connect(self.lj_flash_secboot)
         self.button_burn_secos.clicked.connect(self.lj_flash_secos)
         self.button_burn_uboot.clicked.connect(self.lj_flash_uboot)
         self.button_burn_devtree.clicked.connect(self.lj_flash_dev_tree)
         self.button_burn_otaloader.clicked.connect(self.lj_flash_otaloader)
+
+        self.button_flash_all.clicked.connect(self.lj_flash_all)
         self.button_reboot.clicked.connect(self.lj_reboot)
         self.button_continue.clicked.connect(self.lj_continue)
+
         self.action_howto.triggered.connect(self.lj_help_howto)
         self.action_about.triggered.connect(self.lj_help_about)
-        self.button_flash_bbcb.clicked.connect(self.lj_flash_nvram)
+
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "ZX2000烧录工具"))
         self.label_device_id.setText(_translate("MainWindow", "发现设备"))
-        self.button_flash_all.setText(_translate("MainWindow", "全部烧录"))
+        self.button_flash_all.setText(_translate("MainWindow", "一键烧录"))
         self.button_reboot.setText(_translate("MainWindow", "重启设备"))
         self.button_continue.setText(_translate("MainWindow", "继续启动"))
         self.button_flash_bbcb.setText(_translate("MainWindow", "烧录BBCB"))
@@ -512,6 +523,7 @@ class Ui_MainWindow(object):
         self.label_loader_minor.setText(_translate("MainWindow", "loader_minor"))
         self.label_loader_type.setText(_translate("MainWindow", "loader_type"))
         self.label_serial_number.setText(_translate("MainWindow", "serial_number"))
+        self.label_random_number.setText(_translate("MainWindow", "random_number"))
         self.label_pmp.setText(_translate("MainWindow", "pmp.toc路径"))
         self.label_secboot.setText(_translate("MainWindow", "secboot.toc路径"))
         self.label_secos.setText(_translate("MainWindow", "secos.toc路径"))
@@ -542,6 +554,7 @@ class Ui_MainWindow(object):
         检测到Android设备上线后的操作
         :return:
         '''
+
         font = QtGui.QFont()
         font.setFamily("微软雅黑 Light")
         font.setPointSize(12)
@@ -558,13 +571,6 @@ class Ui_MainWindow(object):
     '''
     实现所有的slots
     '''
-    def lj_erase_all(self):
-        '''
-
-        :return:
-        '''
-        logging.debug("lj_erase_all")
-
     def lj_flash_all(self):
         '''
 
@@ -576,6 +582,7 @@ class Ui_MainWindow(object):
         self.lj_flash_secboot()
         self.lj_flash_secos()
         self.lj_flash_uboot()
+        self.lj_flash_nvram()
         self.lj_flash_dev_tree()
         self.lj_flash_otaloader()
 
@@ -585,11 +592,15 @@ class Ui_MainWindow(object):
         :return:
         '''
         if(common.FLAG_DEVICE_ONLINE == False):
-            QtWidgets.QMessageBox.critical(self.button_burn_pmp,"Error","设备未上线")
+            QtWidgets.QMessageBox.critical(self.button_burn_pmp,common.BURNERROR,common.DEVICENOTONLINE)
             return
 
+        logging.debug("\r\n")
         flag = False
         fileName = self.lineEdit_pmp.text()
+        if(len(fileName) == 0):
+            QtWidgets.QMessageBox.critical(self.button_burn_pmp,common.BURNERROR,common.SELECTIMAGEFILE)
+            return
         command = common.FLASH_PREFIX + common.PMP_ADDRESS + fileName
         logging.debug("pmp command:" + command)
 
@@ -603,8 +614,10 @@ class Ui_MainWindow(object):
                 flag = False
 
         if(flag == True):
+            common.FLAG_PMP_FLASHED = False
             QtWidgets.QMessageBox.critical(self.button_burn_pmp,common.BURNERROR,"pmp烧录失败")
         else:
+            common.FLAG_PMP_FLASHED = True
             QtWidgets.QMessageBox.information(self.button_burn_pmp,common.BURNSUCCESS,"pmp烧录成功")
 
     def lj_flash_secboot(self):
@@ -613,11 +626,20 @@ class Ui_MainWindow(object):
         :return:
         '''
         if(common.FLAG_DEVICE_ONLINE == False):
-            QtWidgets.QMessageBox.critical(self.button_burn_secboot,common.BURNERROR,"设备未上线")
+            QtWidgets.QMessageBox.critical(self.button_burn_secboot,common.BURNERROR,common.DEVICENOTONLINE)
             return
 
+        if(common.FLAG_PMP_FLASHED == False):
+            QtWidgets.QMessageBox.critical(self.button_burn_secboot,common.BURNERROR,common.PMPISNOTFLASHED)
+            return
+
+        logging.debug("\r\n")
         flag = False
         fileName = self.lineEdit_secboot.text()
+        if(len(fileName) == 0):
+            QtWidgets.QMessageBox.critical(self.button_burn_secboot,common.BURNERROR,common.SELECTIMAGEFILE)
+            return
+
         command = common.FLASH_PREFIX + common.SECBOOT_ADDRESS + " " + fileName
         logging.debug("secboot command:" + command)
 
@@ -641,10 +663,19 @@ class Ui_MainWindow(object):
         :return:
         '''
         if(common.FLAG_DEVICE_ONLINE == False):
-            QtWidgets.QMessageBox.critical(self.button_burn_secos,common.BURNERROR,"设备未上线")
+            QtWidgets.QMessageBox.critical(self.button_burn_secos,common.BURNERROR,common.DEVICENOTONLINE)
             return
 
+        if(common.FLAG_PMP_FLASHED == False):
+            QtWidgets.QMessageBox.critical(self.button_burn_secos,common.BURNERROR,common.PMPISNOTFLASHED)
+            return
+
+        logging.debug("\r\n")
         fileName = self.lineEdit_secos.text()
+        if(len(fileName) == 0):
+            QtWidgets.QMessageBox.critical(self.button_burn_secos,common.BURNERROR,common.SELECTIMAGEFILE)
+            return
+
         command = common.FLASH_PREFIX + common.SECOS_ADDRESS + " " + fileName
         logging.debug("secos command:" + command)
 
@@ -668,10 +699,19 @@ class Ui_MainWindow(object):
         :return:
         '''
         if(common.FLAG_DEVICE_ONLINE == False):
-            QtWidgets.QMessageBox.critical(self.button_burn_uboot,common.BURNERROR,"设备未上线")
+            QtWidgets.QMessageBox.critical(self.button_burn_uboot,common.BURNERROR,common.DEVICENOTONLINE)
             return
 
+        if(common.FLAG_PMP_FLASHED == False):
+            QtWidgets.QMessageBox.critical(self.button_burn_uboot,common.BURNERROR,common.PMPISNOTFLASHED)
+            return
+
+        logging.debug("\r\n")
         fileName = self.lineEdit_uboot.text()
+        if(len(fileName) == 0):
+            QtWidgets.QMessageBox.critical(self.button_burn_uboot,common.BURNERROR,common.SELECTIMAGEFILE)
+            return
+
         command = common.FLASH_PREFIX + common.UBOOT_ADDRESS + " " + fileName
         logging.debug("uboot command:" + command)
 
@@ -696,12 +736,21 @@ class Ui_MainWindow(object):
         '''
 
         if(common.FLAG_DEVICE_ONLINE == False):
-            QtWidgets.QMessageBox.critical(self.button_burn_devtree,common.BURNERROR,"设备未上线")
+            QtWidgets.QMessageBox.critical(self.button_burn_devtree,common.BURNERROR,common.DEVICENOTONLINE)
             return
 
+        if(common.FLAG_PMP_FLASHED == False):
+            QtWidgets.QMessageBox.critical(self.button_burn_devtree,common.BURNERROR,common.PMPISNOTFLASHED)
+            return
+
+        logging.debug("\r\n")
         fileName = self.lineEdit_dev_tree.text()
+        if(len(fileName) == 0):
+            QtWidgets.QMessageBox.critical(self.button_burn_devtree,common.BURNERROR,common.SELECTIMAGEFILE)
+            return
+
         command = common.FLASH_PREFIX + common.DEVICETREE_ADDRESS + " " + fileName
-        logging.debug("uboot command:" + command)
+        logging.debug("device tree command:" + command)
 
         ret = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
         for line in ret.stdout.readlines():
@@ -724,12 +773,21 @@ class Ui_MainWindow(object):
         '''
 
         if(common.FLAG_DEVICE_ONLINE == False):
-            QtWidgets.QMessageBox.critical(self.button_burn_otaloader,common.BURNERROR,"设备未上线")
+            QtWidgets.QMessageBox.critical(self.button_burn_otaloader,common.BURNERROR,common.DEVICENOTONLINE)
             return
 
+        if(common.FLAG_PMP_FLASHED == False):
+            QtWidgets.QMessageBox.critical(self.button_burn_otaloader,common.BURNERROR,common.PMPISNOTFLASHED)
+            return
+
+        logging.debug("\r\n")
         fileName = self.lineEdit_otaloader.text()
+        if(len(fileName) == 0):
+            QtWidgets.QMessageBox.critical(self.button_burn_otaloader,common.BURNERROR,common.SELECTIMAGEFILE)
+            return
+
         command = common.FLASH_PREFIX + common.KERNELOTA_ADDRESS + " " + fileName
-        logging.debug("uboot command:" + command)
+        logging.debug("otaloader command:" + command)
 
         ret = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
         for line in ret.stdout.readlines():
@@ -749,9 +807,10 @@ class Ui_MainWindow(object):
         self.lineEdit_manu_id.setText("21")
         self.lineEdit_hd_code.setText("4")
         self.lineEdit_loader_major.setText("3")
-        self.lineEdit_loader_minor.setText("1")
+        self.lineEdit_loader_minor_2.setText("1")
         self.lineEdit_loader_type.setText("1")
         self.lineEdit_serial_number.setText("1234")
+        # self.lineEdit_random_number.setText("5678")
 
     def lj_flash_nvram(self):
         '''
@@ -761,8 +820,14 @@ class Ui_MainWindow(object):
 
         # 检查设备是否上线
         if(common.FLAG_DEVICE_ONLINE == False):
-            QtWidgets.QMessageBox.critical(self.button_flash_bbcb,common.BURNERROR,"设备未上线")
+            QtWidgets.QMessageBox.critical(self.button_flash_bbcb,common.BURNERROR,common.DEVICENOTONLINE)
             return
+
+        if(common.FLAG_PMP_FLASHED == False):
+            QtWidgets.QMessageBox.critical(self.button_flash_bbcb,common.BURNERROR,common.PMPISNOTFLASHED)
+            return
+
+        logging.debug("\r\n")
 
         fp = open('toc\\nvram.bin',"rb+")
 
@@ -796,7 +861,7 @@ class Ui_MainWindow(object):
 
         # 写入loader_minor
         loader_minor = fp.read(1)
-        loader_minor_new = int(self.lineEdit_loader_minor.text())
+        loader_minor_new = int(self.lineEdit_loader_minor_2.text())
         if(loader_minor != loader_minor_new):
             logging.debug("write new loader_minor: " + str(loader_minor_new))
             fp.seek(-1,os.SEEK_CUR)
@@ -814,7 +879,24 @@ class Ui_MainWindow(object):
 
         # 写入serial_number
         serial_number = str(self.lineEdit_serial_number.text())
-        fp.write(struct.pack("4s",bytes(serial_number,"utf-8")))
+        logging.debug("input serial number: " + serial_number)
+
+        # 以BCD码显示serial number
+        serial_number_new = lj_generate_bcd_code(serial_number)
+        logging.debug("serial_number_new: " + serial_number_new)
+
+        fp.write(struct.pack("@4s",serial_number_new.encode("utf-8")))
+        fp.flush()
+
+        # 写入random number
+        random_number = str(self.lineEdit_random_number.text())
+        if(len(random_number) == 0):
+            random_number_new = str(lj_generate_random_number())
+            logging.debug("generate random number: " + str(random_number_new))
+            fp.write(struct.pack("4s",lj_generate_bcd_code(random_number_new).encode("utf-8")))
+        else:
+            fp.write(struct.pack("4s",lj_generate_bcd_code(random_number).encode("utf-8")))
+
         fp.flush()
 
         # 计算BBCB结构体的crc值并写入结构体中
@@ -875,7 +957,11 @@ class Ui_MainWindow(object):
     def lj_flash_ljinfo(self):
         # 检查设备是否上线
         if(common.FLAG_DEVICE_ONLINE == False):
-            QtWidgets.QMessageBox.critical(self.button_flash_bbcb,common.BURNERROR,"设备未上线")
+            QtWidgets.QMessageBox.critical(self.button_flash_bbcb,common.BURNERROR,common.DEVICENOTONLINE)
+            return
+
+        if(common.FLAG_PMP_FLASHED == False):
+            QtWidgets.QMessageBox.critical(self.button_flash_bbcb,common.BURNERROR,common.PMPISNOTFLASHED)
             return
 
     def lj_help_howto(self):
@@ -891,6 +977,7 @@ class Ui_MainWindow(object):
         显示软件相关信息
         :return:
         '''
+
         QMessageBox.aboutQt(self.menuBar,"PyQt5")
 
     def lj_reboot(self):
@@ -898,11 +985,13 @@ class Ui_MainWindow(object):
         重启设备
         :return:
         '''
+
         # 检查设备是否上线
         if(common.FLAG_DEVICE_ONLINE == False):
-            QtWidgets.QMessageBox.critical(self.button_reboot,common.BURNERROR,"设备未上线")
+            QtWidgets.QMessageBox.critical(self.button_reboot,common.BURNERROR,common.DEVICENOTONLINE)
             return
 
+        logging.debug("\r\n")
         ret = subprocess.Popen(common.FLASH_REBOOT,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
         for line in ret.stdout.readlines():
             logging.debug(line)
@@ -915,9 +1004,10 @@ class Ui_MainWindow(object):
 
         # 检查设备是否上线
         if(common.FLAG_DEVICE_ONLINE == False):
-            QtWidgets.QMessageBox.critical(self.button_continue,common.BURNERROR,"设备未上线")
+            QtWidgets.QMessageBox.critical(self.button_continue,common.BURNERROR,common.DEVICENOTONLINE)
             return
 
+        logging.debug("\r\n")
         ret = subprocess.Popen(common.FLASH_CONTINUE,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
         for line in ret.stdout.readlines():
             logging.debug(line)
@@ -927,8 +1017,10 @@ class Ui_MainWindow(object):
         打开pmp文件选择框
         :return:
         '''
+
+        logging.debug("\r\n")
         fileName,_ = QFileDialog.getOpenFileName(self.lineEdit_pmp,"请选择pmp镜像文件")
-        logging.debug(fileName)
+        logging.debug("lj_select_pmp_image_file" + fileName)
         if(len(fileName) != 0):
             self.lineEdit_pmp.setText(fileName)
 
@@ -937,7 +1029,10 @@ class Ui_MainWindow(object):
         打开secboot文件选择框
         :return:
         '''
+
+        logging.debug("\r\n")
         fileName,_ = QFileDialog.getOpenFileName(self.lineEdit_secboot,"请选择secboot镜像文件")
+        logging.debug("lj_select_secboot_image_file" + fileName)
         if(len(fileName) != 0):
             self.lineEdit_secboot.setText(fileName)
 
@@ -946,7 +1041,9 @@ class Ui_MainWindow(object):
         打开secos文件选择框
         :return:
         '''
+        logging.debug("\r\n")
         fileName,_ = QFileDialog.getOpenFileName(self.lineEdit_secos,"请选择secos镜像文件")
+        logging.debug("lj_select_secos_image_file" + fileName)
         if(len(fileName) != 0):
             self.lineEdit_secos.setText(fileName)
 
@@ -955,7 +1052,9 @@ class Ui_MainWindow(object):
         打开uboot文件选择框
         :return:
         '''
+        logging.debug("\r\n")
         fileName,_ = QFileDialog.getOpenFileName(self.lineEdit_uboot,"请选择uboot镜像文件")
+        logging.debug("lj_select_uboot_image_file" + fileName)
         if(len(fileName) != 0):
             self.lineEdit_uboot.setText(fileName)
 
@@ -964,7 +1063,9 @@ class Ui_MainWindow(object):
         打开device_tree.img文件选择框
         :return:
         '''
+        logging.debug("\r\n")
         fileName,_ = QFileDialog.getOpenFileName(self.lineEdit_dev_tree,"请选择device tree镜像文件")
+        logging.debug("lj_select_devtree_image_file" + fileName)
         if(len(fileName) != 0):
             self.lineEdit_dev_tree.setText(fileName)
 
@@ -973,6 +1074,8 @@ class Ui_MainWindow(object):
         打开otaloader.img文件选择框
         :return:
         '''
+        logging.debug("\r\n")
         fileName,_ = QFileDialog.getOpenFileName(self.lineEdit_otaloader,"请选择otaloader镜像文件")
+        logging.debug("lj_select_otaloader_file" + fileName)
         if(len(fileName) != 0):
             self.lineEdit_otaloader.setText(fileName)
