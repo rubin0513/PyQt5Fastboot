@@ -29,7 +29,6 @@ if __name__ == '__main__':
 
     app = QApplication(sys.argv)
     mainWindow = QMainWindow()
-    mainWindow.setWindowIcon(QIcon('icon/lj.jpg'))
     ui = Ui_MainWindow()
     ui.setupUi(mainWindow)
     mainWindow.show()

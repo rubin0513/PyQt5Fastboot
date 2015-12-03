@@ -34,6 +34,11 @@
   <property name="windowTitle">
    <string>ZX2000烧录工具</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <activeoff>:/icon/lj.jpg</activeoff>
+   </iconset>
+  </property>
   <property name="autoFillBackground">
    <bool>false</bool>
   </property>
@@ -428,6 +433,11 @@
            <height>20</height>
           </size>
          </property>
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
          <property name="text">
           <string/>
          </property>
@@ -446,6 +456,11 @@
            <width>100</width>
            <height>20</height>
           </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+          </font>
          </property>
          <property name="text">
           <string/>
@@ -466,6 +481,11 @@
            <height>20</height>
           </size>
          </property>
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
          <property name="text">
           <string/>
          </property>
@@ -484,6 +504,11 @@
            <width>100</width>
            <height>20</height>
           </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+          </font>
          </property>
          <property name="text">
           <string/>
@@ -504,6 +529,11 @@
            <height>20</height>
           </size>
          </property>
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
          <property name="text">
           <string/>
          </property>
@@ -522,6 +552,11 @@
            <width>100</width>
            <height>20</height>
           </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+          </font>
          </property>
          <property name="text">
           <string/>
@@ -542,6 +577,11 @@
            <height>20</height>
           </size>
          </property>
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
          <property name="text">
           <string/>
          </property>
@@ -551,7 +591,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>282</x>
@@ -1141,7 +1181,7 @@
   </action>
  </widget>
  <resources>
-  <include location="../qtfastboot/fastboot.qrc"/>
+  <include location="fastboot.qrc"/>
  </resources>
  <connections>
   <connection>
