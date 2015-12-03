@@ -1,40 +1,1 @@
-# -*- coding: utf-8 -*-
-__author__ = 'djstava@gmail.com'
-
-# -*- coding: utf-8 -*-
-
-import sys
-
-from PyQt5.QtWidgets import QApplication , QMainWindow
-from PyQt5.QtGui import QIcon
-
-from ui import *
-import common
-
-def initLogConfiguration():
-    '''
-    初始化日志配置
-    '''
-    logging.basicConfig(level = logging.DEBUG,
-                        filename = common.LOGFILE,
-                        filemode = 'a+',
-                        format = '%(asctime)s - %(filename)s - line %(lineno)-4d - %(levelname)s - %(message)s',
-                        datefmt = '%m-%d %H:%M')
-
-if __name__ == '__main__':
-    '''
-    主函数
-    '''
-    initLogConfiguration()
-
-    app = QApplication(sys.argv)
-    mainWindow = QMainWindow()
-    mainWindow.setWindowIcon(QIcon('icon/lj.jpg'))
-    ui = Ui_MainWindow()
-    ui.setupUi(mainWindow)
-    mainWindow.show()
-
-    ui.startDetectDevice()
-    ui.lj_load_default_bbcb()
-
-    sys.exit(app.exec_())
+from distutils.core import setupimport py2exeimport sys#this allows to run it with a simple double click.sys.argv.append('py2exe')py2exe_options = {        "includes": ["sip"],        "dll_excludes": ["MSVCP90.dll",],        "compressed": 1,        "optimize": 2,        "ascii": 0,        "bundle_files": 1,        }setup(      name = 'PyQt5Fastboot',      version = '1.0',      windows = ['main.py'],      zipfile = None,      options = {'py2exe': py2exe_options}      )
