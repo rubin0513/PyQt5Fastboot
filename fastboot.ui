@@ -6,19 +6,19 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1280</width>
+    <width>1080</width>
     <height>720</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>1280</width>
+    <width>1080</width>
     <height>720</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>1280</width>
+    <width>1080</width>
     <height>720</height>
    </size>
   </property>
@@ -52,9 +52,9 @@
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>430</x>
+      <x>340</x>
       <y>10</y>
-      <width>368</width>
+      <width>370</width>
       <height>42</height>
      </rect>
     </property>
@@ -114,8 +114,8 @@
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>430</x>
-      <y>610</y>
+      <x>320</x>
+      <y>620</y>
       <width>411</width>
       <height>61</height>
      </rect>
@@ -204,8 +204,8 @@
    <widget class="QPushButton" name="button_flash_bbcb">
     <property name="geometry">
      <rect>
-      <x>720</x>
-      <y>160</y>
+      <x>580</x>
+      <y>140</y>
       <width>80</width>
       <height>40</height>
      </rect>
@@ -235,10 +235,10 @@
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>470</x>
-      <y>80</y>
-      <width>231</width>
-      <height>201</height>
+      <x>340</x>
+      <y>60</y>
+      <width>233</width>
+      <height>204</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -591,13 +591,13 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="layoutWidget">
+   <widget class="QWidget" name="">
     <property name="geometry">
      <rect>
-      <x>282</x>
-      <y>310</y>
-      <width>717</width>
-      <height>274</height>
+      <x>170</x>
+      <y>270</y>
+      <width>716</width>
+      <height>344</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout">
@@ -801,6 +801,39 @@
          </property>
         </widget>
        </item>
+       <item>
+        <widget class="QLabel" name="label_splash">
+         <property name="minimumSize">
+          <size>
+           <width>160</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>160</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>微软雅黑 Light</family>
+           <pointsize>12</pointsize>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>splash路径</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+         <property name="wordWrap">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
       </layout>
      </item>
      <item>
@@ -934,12 +967,33 @@
          </property>
         </widget>
        </item>
+       <item>
+        <widget class="QLineEdit" name="lineEdit_splash">
+         <property name="minimumSize">
+          <size>
+           <width>450</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>450</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>12</pointsize>
+          </font>
+         </property>
+        </widget>
+       </item>
       </layout>
      </item>
      <item>
       <layout class="QVBoxLayout" name="verticalLayout">
        <property name="leftMargin">
-        <number>8</number>
+        <number>6</number>
        </property>
        <item>
         <widget class="QPushButton" name="button_burn_pmp">
@@ -1091,6 +1145,31 @@
          </property>
         </widget>
        </item>
+       <item>
+        <widget class="QPushButton" name="button_burn_splash">
+         <property name="minimumSize">
+          <size>
+           <width>80</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>微软雅黑 Light</family>
+           <pointsize>12</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>烧录</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </item>
     </layout>
@@ -1115,8 +1194,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1280</width>
-     <height>27</height>
+     <width>1080</width>
+     <height>22</height>
     </rect>
    </property>
    <property name="font">
@@ -1191,8 +1270,8 @@
    <slot>lj_flash_all()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>497</x>
-     <y>622</y>
+     <x>458</x>
+     <y>659</y>
     </hint>
     <hint type="destinationlabel">
      <x>484</x>
@@ -1207,8 +1286,8 @@
    <slot>lj_flash_boot()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>446</x>
-     <y>274</y>
+     <x>700</x>
+     <y>201</y>
     </hint>
     <hint type="destinationlabel">
      <x>449</x>
