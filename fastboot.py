@@ -5,6 +5,7 @@ import os
 import sys
 import subprocess
 import random
+import common
 
 def lj_list_device_id(self):
         '''
@@ -12,7 +13,7 @@ def lj_list_device_id(self):
         :return: 返回连接设备的设备号
         '''
 
-        process = subprocess.Popen('fastboot.exe devices',shell=False,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+        process = subprocess.Popen(common.FLASH_DEVICE,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
         str = process.stdout.read().rstrip(b'\tfastboot\r\n')
 
         return str.decode("utf-8")

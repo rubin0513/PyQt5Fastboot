@@ -21,6 +21,7 @@ from fastboot import lj_generate_random_number
 from fastboot import lj_generate_bcd_code
 
 import common
+import showPlatform
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -468,23 +469,42 @@ class Ui_MainWindow(object):
         self.lineEdit_dev_tree.setFont(font)
         self.lineEdit_otaloader.setFont(font)
 
-        if(os.path.exists("toc\\pmp.toc")):
-            self.lineEdit_pmp.setText(lj_get_default_image_path("toc\\pmp.toc"))
+        if showPlatform.OS_WIN:
+            if(os.path.exists("toc\\pmp.toc")):
+                self.lineEdit_pmp.setText(lj_get_default_image_path("toc\\pmp.toc"))
 
-        if(os.path.exists("toc\\secboot.toc")):
-            self.lineEdit_secboot.setText(lj_get_default_image_path("toc\\secboot.toc"))
+            if(os.path.exists("toc\\secboot.toc")):
+                self.lineEdit_secboot.setText(lj_get_default_image_path("toc\\secboot.toc"))
 
-        if(os.path.exists("toc\\secos.toc")):
-            self.lineEdit_secos.setText(lj_get_default_image_path("toc\\secos.toc"))
+            if(os.path.exists("toc\\secos.toc")):
+                self.lineEdit_secos.setText(lj_get_default_image_path("toc\\secos.toc"))
 
-        if(os.path.exists("toc\\u-boot.toc")):
-            self.lineEdit_uboot.setText(lj_get_default_image_path("toc\\u-boot.toc"))
+            if(os.path.exists("toc\\u-boot.toc")):
+                self.lineEdit_uboot.setText(lj_get_default_image_path("toc\\u-boot.toc"))
 
-        if(os.path.exists("toc\\devicetree.img")):
-            self.lineEdit_dev_tree.setText(lj_get_default_image_path("toc\\devicetree.img"))
+            if(os.path.exists("toc\\devicetree.img")):
+                self.lineEdit_dev_tree.setText(lj_get_default_image_path("toc\\devicetree.img"))
 
-        if(os.path.exists("toc\\otaloader.img")):
-            self.lineEdit_otaloader.setText(lj_get_default_image_path("toc\\otaloader.img"))
+            if(os.path.exists("toc\\otaloader.img")):
+                self.lineEdit_otaloader.setText(lj_get_default_image_path("toc\\otaloader.img"))
+        else:
+            if(os.path.exists("toc/pmp.toc")):
+                self.lineEdit_pmp.setText(lj_get_default_image_path("toc/pmp.toc"))
+
+            if(os.path.exists("toc/secboot.toc")):
+                self.lineEdit_secboot.setText(lj_get_default_image_path("toc/secboot.toc"))
+
+            if(os.path.exists("toc/secos.toc")):
+                self.lineEdit_secos.setText(lj_get_default_image_path("toc/secos.toc"))
+
+            if(os.path.exists("toc/u-boot.toc")):
+                self.lineEdit_uboot.setText(lj_get_default_image_path("toc/u-boot.toc"))
+
+            if(os.path.exists("toc/devicetree.img")):
+                self.lineEdit_dev_tree.setText(lj_get_default_image_path("toc/devicetree.img"))
+
+            if(os.path.exists("toc/otaloader.img")):
+                self.lineEdit_otaloader.setText(lj_get_default_image_path("toc/otaloader.img"))
 
         self.retranslateUi(MainWindow)
 
@@ -832,7 +852,10 @@ class Ui_MainWindow(object):
 
         logging.debug("\r\n")
 
-        fp = open('toc\\nvram.bin',"rb+")
+        if showPlatform.OS_WIN:
+            fp = open('toc\\nvram.bin',"rb+")
+        else:
+            fp = open('toc/nvram.bin',"rb+")
 
         #写入manufacturer id
         fp.seek(common.BBCB_OFFSET + 2,os.SEEK_SET)
@@ -939,8 +962,11 @@ class Ui_MainWindow(object):
 
         fp.close()
         '''
+        if showPlatform.OS_WIN:
+            command = common.FLASH_PREFIX + common.NVRAM_ADDRESS + " toc\\nvram.bin"
+        else:
+            command = common.FLASH_PREFIX + common.NVRAM_ADDRESS + " toc/nvram.bin"
 
-        command = common.FLASH_PREFIX + common.NVRAM_ADDRESS + " toc\\nvram.bin"
         logging.debug("nvram command: " + command)
 
         ret = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)

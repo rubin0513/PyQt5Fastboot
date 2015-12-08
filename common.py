@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 __author__ = 'djstava@gmail.com'
 
+import showPlatform
+
 PREVIOUS_DATA = '001122334455'
 FLAG_DEVICE_ONLINE = False
 FLAG_PMP_FLASHED = False
@@ -41,11 +43,19 @@ CACHE_ADDRESS = "Oo27b000"
 USERDATA_ADDRESS = "Oo37b000"
 
 BURN_ERROR_KEYWORD = "FAILED"
-FLASH_PREFIX = "fastboot.exe flash "
-PMP_ADDRESS = " pmp "
 
-FLASH_REBOOT = "fastboot.exe reboot"
-FLASH_CONTINUE = "fastboot.exe continue"
+if showPlatform.OS_WIN:
+    FLASH_PREFIX = "fastboot.exe flash "
+    FLASH_REBOOT = "fastboot.exe reboot"
+    FLASH_CONTINUE = "fastboot.exe continue"
+    FLASH_DEVICE = "fastboot.exe devices"
+else:
+    FLASH_PREFIX = "fastboot flash "
+    FLASH_REBOOT = "fastboot reboot"
+    FLASH_CONTINUE = "fastboot continue"
+    FLASH_DEVICE = "fastboot devices"
+
+PMP_ADDRESS = " pmp "
 
 LOGFILE = "PyQt5Fastboot.log"
 BURNSUCCESS = "恭喜您"
