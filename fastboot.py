@@ -34,11 +34,3 @@ def lj_generate_random_number():
     '''
 
     return random.randint(0,sys.maxsize)
-
-def lj_generate_bcd_code(str):
-    '''
-    生成字符串对应的BCD码
-    :return:返回产生BCD码字符串
-    '''
-
-    return ''.join(chr(int(str[i:i+2], 16)) for i in range(0, len(str), 2))

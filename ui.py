@@ -18,7 +18,6 @@ from PyQt5.QtWidgets import QMessageBox
 from detectThread import *
 from fastboot import lj_get_default_image_path
 from fastboot import lj_generate_random_number
-from fastboot import lj_generate_bcd_code
 
 import common
 import showPlatform
@@ -1004,10 +1003,10 @@ class Ui_MainWindow(object):
         logging.debug("input serial number: " + serial_number)
 
         # 以BCD码显示serial number
-        serial_number_new = lj_generate_bcd_code(serial_number)
-        logging.debug("serial_number_new: " + serial_number_new)
-
-        fp.write(struct.pack("@4s",serial_number_new.encode("utf-8")))
+        fp.write(struct.pack("B",int(serial_number[0:2],16)))
+        fp.write(struct.pack("B",int(serial_number[2:4],16)))
+        fp.write(struct.pack("B",int(serial_number[4:6],16)))
+        fp.write(struct.pack("B",int(serial_number[6:8],16)))
         fp.flush()
 
         # 写入random number
@@ -1015,9 +1014,17 @@ class Ui_MainWindow(object):
         if(len(random_number) == 0):
             random_number_new = str(lj_generate_random_number())
             logging.debug("generate random number: " + str(random_number_new))
-            fp.write(struct.pack("4s",lj_generate_bcd_code(random_number_new).encode("utf-8")))
+
+            fp.write(struct.pack("B",int(random_number_new[0:2],16)))
+            fp.write(struct.pack("B",int(random_number_new[2:4],16)))
+            fp.write(struct.pack("B",int(random_number_new[4:6],16)))
+            fp.write(struct.pack("B",int(random_number_new[6:8],16)))
+
         else:
-            fp.write(struct.pack("4s",lj_generate_bcd_code(random_number).encode("utf-8")))
+            fp.write(struct.pack("B",int(random_number[0:2],16)))
+            fp.write(struct.pack("B",int(random_number[2:4],16)))
+            fp.write(struct.pack("B",int(random_number[4:6],16)))
+            fp.write(struct.pack("B",int(random_number[6:8],16)))
 
         fp.flush()
 
@@ -1036,28 +1043,6 @@ class Ui_MainWindow(object):
 
         fp.close()
 
-        '''
-        fp.seek(common.BBCB_OFFSET)
-        crc,manufacturer_id,hardware_code,loader_major,loader_minor,loader_type,serial_number,random_number,padding \
-            = struct.unpack("2sBBBBB4s4s9s",fp.read(common.BBCB_STRUCT_SIZE))
-        logging.debug(crc,manufacturer_id,hardware_code,loader_major,loader_minor,loader_type,serial_number,random_number,padding)
-
-        serial_number_new = struct.pack("<4s",b'0x12345678')
-        hardware_code_new = 4
-
-        bbcb = struct.pack("2sBBBBB4s4s9s",crc,manufacturer_id,hardware_code_new,loader_major,loader_minor,loader_type,serial_number_new,random_number,padding)
-        crcCommand = "crc.exe "+ str(bbcb)
-        logging.debug("crcCommand:",crcCommand)
-
-        crcRet = subprocess.Popen(crcCommand,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
-        crc_new = crcRet.stdout.read()
-        logging.debug("crc:",crc_new)
-
-        fp.seek(common.BBCB_OFFSET)
-        fp.write(struct.pack("2sBBBBB4s4s9s",crc_new,manufacturer_id,hardware_code,loader_major,loader_minor,loader_type,serial_number_new,random_number,padding))
-
-        fp.close()
-        '''
         if showPlatform.OS_WIN:
             command = common.FLASH_PREFIX + common.NVRAM_ADDRESS + " toc\\nvram.bin"
         else:
@@ -1143,11 +1128,15 @@ class Ui_MainWindow(object):
         :return:
         '''
 
-        logging.debug("\r\n")
-        fileName,_ = QFileDialog.getOpenFileName(self.lineEdit_pmp,"请选择pmp镜像文件")
+        fileName,_ = QtWidgets.QFileDialog.getOpenFileName(self.lineEdit_pmp,"请选择pmp镜像文件"," ","pmp files(*.toc)")
         logging.debug("lj_select_pmp_image_file" + fileName)
-        if(len(fileName) != 0):
-            self.lineEdit_pmp.setText(fileName)
+        if fileName:
+            if (fileName != common.PMP_DEFAULT_FILE_PATH):
+                self.lineEdit_pmp.setText(fileName)
+            else:
+                pass
+        else:
+            pass
 
     def lj_select_secboot_image_file(self):
         '''

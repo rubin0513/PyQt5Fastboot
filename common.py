@@ -49,11 +49,15 @@ if showPlatform.OS_WIN:
     FLASH_REBOOT = "fastboot.exe reboot"
     FLASH_CONTINUE = "fastboot.exe continue"
     FLASH_DEVICE = "fastboot.exe devices"
+
+    PMP_DEFAULT_FILE_PATH = "toc\\pmp.toc"
 else:
     FLASH_PREFIX = "fastboot flash "
     FLASH_REBOOT = "fastboot reboot"
     FLASH_CONTINUE = "fastboot continue"
     FLASH_DEVICE = "fastboot devices"
+
+    PMP_DEFAULT_FILE_PATH = "toc/pmp.toc"
 
 PMP_ADDRESS = " pmp "
 
