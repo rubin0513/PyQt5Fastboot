@@ -19,4 +19,4 @@ class detectDeviceThread(QThread):
         while True:
             deviceNum = lj_list_device_id(self)
             self.detectSignal.emit(deviceNum)
-            time.sleep(3)
+            time.sleep(2)

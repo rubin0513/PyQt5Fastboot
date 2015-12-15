@@ -14,9 +14,10 @@ def lj_list_device_id(self):
         '''
 
         process = subprocess.Popen(common.FLASH_DEVICE,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
-        str = process.stdout.read().rstrip(b'\tfastboot\r\n')
-
-        return str.decode("utf-8")
+        device_id = process.stdout.read().rstrip(b'\tfastboot\r\n')
+        process.stdout.close()
+        print(device_id.decode("utf-8"))
+        return device_id.decode("utf-8")
 
 def lj_get_default_image_path(imageName):
     '''

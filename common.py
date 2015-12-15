@@ -3,7 +3,7 @@ __author__ = 'djstava@gmail.com'
 
 import showPlatform
 
-PREVIOUS_DATA = '001122334455'
+PREVIOUS_DATA = ""
 FLAG_DEVICE_ONLINE = False
 FLAG_PMP_FLASHED = False
 
@@ -51,6 +51,13 @@ if showPlatform.OS_WIN:
     FLASH_DEVICE = "fastboot.exe devices"
 
     PMP_DEFAULT_FILE_PATH = "toc\\pmp.toc"
+    SECBOOT_DEFAULT_FILE_PATH = "toc\\secboot.toc"
+    SECOS_DEFAULT_FILE_PATH = "toc\\secos.toc"
+    UBOOT_DEFAULT_FILE_PATH = "toc\\u-boot.toc"
+    DEVTREE_DEFAULT_FILE_PATH = "toc\\devicetree.img"
+    OTALOADER_DEFAULT_FILE_PATH = "toc\\otaloader.img"
+    SPLASH_DEFAULT_FILE_PATH = "toc\\splash.dat"
+
 else:
     FLASH_PREFIX = "fastboot flash "
     FLASH_REBOOT = "fastboot reboot"
@@ -58,6 +65,12 @@ else:
     FLASH_DEVICE = "fastboot devices"
 
     PMP_DEFAULT_FILE_PATH = "toc/pmp.toc"
+    SECBOOT_DEFAULT_FILE_PATH = "toc/secboot.toc"
+    SECOS_DEFAULT_FILE_PATH = "toc/secos.toc"
+    UBOOT_DEFAULT_FILE_PATH = "toc/u-boot.toc"
+    DEVTREE_DEFAULT_FILE_PATH = "toc/devicetree.img"
+    OTALOADER_DEFAULT_FILE_PATH = "toc/otaloader.img"
+    SPLASH_DEFAULT_FILE_PATH = "toc/splash.dat"
 
 PMP_ADDRESS = " pmp "
 
@@ -68,3 +81,8 @@ HOWTOUSE = "软件使用方法"
 DEVICENOTONLINE = "设备未上线，请检查连接"
 PMPISNOTFLASHED = "请先烧录pmp镜像"
 SELECTIMAGEFILE = "请选择镜像文件"
+
+TEXT_FLASH_TITLE = "烧录结果"
+TEXT_FLASH_SUCCESS = "烧录成功!"
+TEXT_FLASH_FAILED_PREFIX = "烧录完毕，其中镜像 "
+TEXT_FLASH_FAILED_SUFFIX = "烧录失败!"
