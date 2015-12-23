@@ -23,7 +23,6 @@ import common
 import showPlatform
 
 class Ui_MainWindow(object):
-    DEVICE_CAN_FLASH_ALL = True
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -678,13 +677,19 @@ class Ui_MainWindow(object):
             QtWidgets.QMessageBox.critical(self.button_flash_all,common.BURNERROR,common.DEVICENOTONLINE)
             return
 
+        if len(self.lineEdit_serial_number.text()) != 8:
+            QtWidgets.QMessageBox.critical(self.button_flash_bbcb,common.BURNERROR,"序列号必须是8位")
+            return
+
+        if len(self.lineEdit_random_number.text()) != 8:
+            QtWidgets.QMessageBox.critical(self.button_flash_bbcb,common.BURNERROR,"random number必须是8位")
+            return
 
         if len(self.lineEdit_pmp.text()) == 0:
             QMessageBox.critical(self.button_flash_all,common.BURNERROR,"没有找到pmp镜像!")
             return
         else:
             flag_pmp = self.lj_flash_pmp_all(self.lineEdit_pmp.text())
-            self.DEVICE_CAN_FLASH_ALL = False
             logging.debug("flash pmp result: " + flag_pmp.__str__())
             time.sleep(1)
 
@@ -715,15 +720,15 @@ class Ui_MainWindow(object):
         else:
             flag_devtree = False
 
-        if len(self.lineEdit_splash.text()) != 0:
-            flag_splash = self.lj_flash_splash_all(self.lineEdit_splash.text())
-        else:
-            flag_splash = False
-
         if len(self.lineEdit_otaloader.text()):
             flag_otaloader = self.lj_flash_otaloader_all(self.lineEdit_otaloader.text())
         else:
             flag_otaloader = False
+
+        if len(self.lineEdit_splash.text()) != 0:
+            flag_splash = self.lj_flash_splash_all(self.lineEdit_splash.text())
+        else:
+            flag_splash = False
 
         logging.debug("flash secboot result:" + flag_secboot.__str__())
         logging.debug("flash secos result: " + flag_secos.__str__())
@@ -781,6 +786,8 @@ class Ui_MainWindow(object):
             else:
                 flag = False
 
+        ret.wait()
+
         if(flag == True):
             common.FLAG_PMP_FLASHED = False
             QtWidgets.QMessageBox.critical(self.button_burn_pmp,common.BURNERROR,"pmp烧录失败")
@@ -820,6 +827,8 @@ class Ui_MainWindow(object):
             else:
                 flag = False
 
+        ret.wait()
+
         if(flag == True):
             QtWidgets.QMessageBox.critical(self.button_burn_secboot,common.BURNERROR,"secboot烧录失败")
         else:
@@ -855,6 +864,8 @@ class Ui_MainWindow(object):
                 break
             else:
                 flag = False
+
+        ret.wait()
 
         if(flag == True):
             QtWidgets.QMessageBox.critical(self.button_burn_secos,common.BURNERROR,"secos烧录失败")
@@ -892,6 +903,8 @@ class Ui_MainWindow(object):
             else:
                 flag = False
 
+        ret.wait()
+
         if(flag == True):
             QtWidgets.QMessageBox.critical(self.button_burn_uboot,common.BURNERROR,"uboot烧录失败")
         else:
@@ -909,6 +922,8 @@ class Ui_MainWindow(object):
                 break
             else:
                 flag_bak = False
+
+        ret.wait()
 
         if(flag_bak == True):
             QtWidgets.QMessageBox.critical(self.button_burn_uboot,common.BURNERROR,"uboot备份烧录失败")
@@ -946,6 +961,8 @@ class Ui_MainWindow(object):
                 break
             else:
                 flag = False
+
+        ret.wait()
 
         if(flag == True):
             QtWidgets.QMessageBox.critical(self.button_burn_devtree,common.BURNERROR,"device tree烧录失败")
@@ -985,6 +1002,8 @@ class Ui_MainWindow(object):
             else:
                 flag = False
 
+        ret.wait()
+
         if(flag == True):
             QtWidgets.QMessageBox.critical(self.button_burn_otaloader,common.BURNERROR,"otaloader烧录失败")
         else:
@@ -1021,6 +1040,8 @@ class Ui_MainWindow(object):
                 break
             else:
                 flag = False
+
+        ret.wait()
 
         if(flag == True):
             QtWidgets.QMessageBox.critical(self.button_burn_splash,common.BURNERROR,"splash烧录失败")
@@ -1108,6 +1129,10 @@ class Ui_MainWindow(object):
         serial_number = str(self.lineEdit_serial_number.text())
         logging.debug("input serial number: " + serial_number)
 
+        if(len(serial_number) != 8):
+            QtWidgets.QMessageBox.critical(self.button_flash_bbcb,common.BURNERROR,"序列号必须是8位")
+            return
+
         # 以BCD码显示serial number
         fp.write(struct.pack("B",int(serial_number[0:2],16)))
         fp.write(struct.pack("B",int(serial_number[2:4],16)))
@@ -1126,6 +1151,9 @@ class Ui_MainWindow(object):
             fp.write(struct.pack("B",int(random_number_new[4:6],16)))
             fp.write(struct.pack("B",int(random_number_new[6:8],16)))
 
+        elif(len(random_number) != 8):
+            QtWidgets.QMessageBox.critical(self.button_flash_bbcb,common.BURNERROR,"random number必须是8位")
+            return
         else:
             fp.write(struct.pack("B",int(random_number[0:2],16)))
             fp.write(struct.pack("B",int(random_number[2:4],16)))
@@ -1137,7 +1165,7 @@ class Ui_MainWindow(object):
         # 计算BBCB结构体的crc值并写入结构体中
         fp.seek(common.BBCB_OFFSET,os.SEEK_SET)
         bbcb = fp.read(common.BBCB_STRUCT_SIZE)
-        crcCommand = "crc.exe "+ str(bbcb)
+        crcCommand = "crcForBurnTool.exe "+ str(bbcb)
 
         crcRet = subprocess.Popen(crcCommand,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
         crc_new = crcRet.stdout.read()
@@ -1164,6 +1192,8 @@ class Ui_MainWindow(object):
                 break
             else:
                 flag = False
+
+        ret.wait()
 
         if(flag == True):
             QtWidgets.QMessageBox.critical(self.button_flash_bbcb,common.BURNERROR,"BBCB烧录失败")
@@ -1350,6 +1380,7 @@ class Ui_MainWindow(object):
         '''
         flag = False
         command = common.FLASH_PREFIX + common.PMP_ADDRESS + fileName
+        logging.debug("\r\n")
         logging.debug("pmp command all:" + command)
 
         ret = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
@@ -1360,6 +1391,8 @@ class Ui_MainWindow(object):
                 break
             else:
                 flag = False
+
+        ret.wait()
 
         return flag
 
@@ -1372,6 +1405,7 @@ class Ui_MainWindow(object):
         flag = False
 
         command = common.FLASH_PREFIX + common.SECBOOT_ADDRESS + " " + fileName
+        logging.debug("\r\n")
         logging.debug("secboot command all:" + command)
 
         ret = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
@@ -1383,6 +1417,8 @@ class Ui_MainWindow(object):
             else:
                 flag = False
 
+        ret.wait()
+
         return flag
 
     def lj_flash_secos_all(self,fileName):
@@ -1393,6 +1429,7 @@ class Ui_MainWindow(object):
 
         flag = False
         command = common.FLASH_PREFIX + common.SECOS_ADDRESS + " " + fileName
+        logging.debug("\r\n")
         logging.debug("secos command all:" + command)
 
         ret = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
@@ -1404,6 +1441,8 @@ class Ui_MainWindow(object):
             else:
                 flag = False
 
+        ret.wait()
+
         return flag
 
     def lj_flash_uboot_all(self,fileName):
@@ -1414,6 +1453,7 @@ class Ui_MainWindow(object):
         flag_uboot = False
         flag_ubootbak = False
         command = common.FLASH_PREFIX + common.UBOOT_ADDRESS + " " + fileName
+        logging.debug("\r\n")
         logging.debug("uboot command all:" + command)
 
         ret = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
@@ -1427,6 +1467,7 @@ class Ui_MainWindow(object):
 
         # uboot_backup
         command_bak = common.FLASH_PREFIX + common.UBOOT_BACK_ADDRESS + " " + fileName
+        logging.debug("\r\n")
         logging.debug("uboot backup command:" + command_bak)
 
         ret_bak = subprocess.Popen(command_bak,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
@@ -1437,6 +1478,8 @@ class Ui_MainWindow(object):
                 break
             else:
                 flag_ubootbak = False
+
+        ret.wait()
 
         return flag_uboot,flag_ubootbak
 
@@ -1449,6 +1492,7 @@ class Ui_MainWindow(object):
         flag = False
 
         command = common.FLASH_PREFIX + common.DEVICETREE_ADDRESS + " " + fileName
+        logging.debug("\r\n")
         logging.debug("device tree command all:" + command)
 
         ret = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
@@ -1459,6 +1503,8 @@ class Ui_MainWindow(object):
                 break
             else:
                 flag = False
+
+        ret.wait()
 
         return flag
 
@@ -1471,6 +1517,7 @@ class Ui_MainWindow(object):
         flag = False
 
         command = common.FLASH_PREFIX + common.KERNELOTA_ADDRESS + " " + fileName
+        logging.debug("\r\n")
         logging.debug("otaloader command all:" + command)
 
         ret = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
@@ -1482,6 +1529,7 @@ class Ui_MainWindow(object):
                 break
             else:
                 flag = False
+        ret.wait()
 
         return flag
 
@@ -1494,6 +1542,7 @@ class Ui_MainWindow(object):
         flag = False
 
         command = common.FLASH_PREFIX + common.SPLASH_ADDRESS + " " + fileName
+        logging.debug("\r\n")
         logging.debug("splash command all:" + command)
 
         ret = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
@@ -1504,6 +1553,8 @@ class Ui_MainWindow(object):
                 break
             else:
                 flag = False
+
+        ret.wait()
 
         return flag
 
@@ -1521,6 +1572,8 @@ class Ui_MainWindow(object):
         BBCB和FIXINFO在nvram分区，其它数据在ljinfo分区
         :return:
         '''
+
+        logging.debug("\r\n")
 
         # 检查设备是否上线
         if showPlatform.OS_WIN:
