@@ -9,7 +9,7 @@ FLAG_PMP_FLASHED = False
 
 HOWTOTEXT = "1、当Android设备以fastboot模式上线时，顶部的文本框中会显示当前连接设备的ID号，只有设备上线才能进行烧录操作\r\n" \
             "2、选择相应的镜像文件,默认情况下会自动选择当前toc目录下的对应文件\r\n" \
-            "3、必须先烧pmp镜像，它进行ram的初始化\r\n" \
+            "3、必须先烧pmp镜像，它进行系统初始化\r\n" \
             "4、单独烧录请点击对应镜像后面的烧录按钮\r\n" \
             "5、一键烧录按钮会根据当前选中的镜像文件依次进行烧录\r\n" \
             "6、烧录完毕后可以选择重启设备或继续启动\r\n" \
@@ -19,6 +19,7 @@ HOWTOTEXT = "1、当Android设备以fastboot模式上线时，顶部的文本框
 BBCB_OFFSET = 0x200000
 BBCB_STRUCT_SIZE = 24
 
+PMP_ADDRESS = " pmp "
 SECBOOT_ADDRESS = "1o0"
 SECOS_ADDRESS = "2o0"
 SECOS_BACK_ADDRESS = "2o800"
@@ -71,8 +72,6 @@ else:
     DEVTREE_DEFAULT_FILE_PATH = "toc/devicetree.img"
     OTALOADER_DEFAULT_FILE_PATH = "toc/otaloader.img"
     SPLASH_DEFAULT_FILE_PATH = "toc/splash.dat"
-
-PMP_ADDRESS = " pmp "
 
 LOGFILE = "PyQt5Fastboot.log"
 BURNSUCCESS = "恭喜您"
