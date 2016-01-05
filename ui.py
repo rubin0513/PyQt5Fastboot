@@ -666,6 +666,7 @@ class Ui_MainWindow(object):
         flag_pmp = True
         flag_secboot = True
         flag_secos = True
+        flag_secos_bak = True
         flag_uboot = True
         flag_uboot_bak = True
         flag_bbcb = True
@@ -703,9 +704,10 @@ class Ui_MainWindow(object):
             flag_secboot = False
 
         if len(self.lineEdit_secos.text()) != 0:
-            flag_secos = self.lj_flash_secos_all(self.lineEdit_secos.text())
+            flag_secos,flag_secos_bak = self.lj_flash_secos_all(self.lineEdit_secos.text())
         else:
             flag_secos = False
+            flag_secos_bak = False
 
         if len(self.lineEdit_uboot.text()) != 0:
             flag_uboot,flag_uboot_bak = self.lj_flash_uboot_all(self.lineEdit_uboot.text())
@@ -732,6 +734,7 @@ class Ui_MainWindow(object):
 
         logging.debug("flash secboot result:" + flag_secboot.__str__())
         logging.debug("flash secos result: " + flag_secos.__str__())
+        logging.debug("flash secosbak result: " + flag_secos_bak.__str__())
         logging.debug("flash uboot result: " + flag_uboot.__str__())
         logging.debug("flash ubootbak result: " + flag_uboot_bak.__str__())
         logging.debug("flash bbcb result: " + flag_bbcb.__str__())
@@ -741,6 +744,7 @@ class Ui_MainWindow(object):
 
         message_secboot = "secboot " if flag_secboot else ""
         message_secos = "secos " if flag_secos else ""
+        message_secos = "secosbak " if flag_secos_bak else ""
         message_uboot = "uboot " if flag_uboot else ""
         message_ubootbak = "ubootbak " if flag_uboot_bak else ""
         message_bbcb = "bbcb " if flag_bbcb else ""
@@ -748,8 +752,8 @@ class Ui_MainWindow(object):
         message_splash = "splash " if flag_splash else ""
         message_otaloader = "otaloader " if flag_otaloader else ""
 
-        if (not flag_pmp) and (not flag_secboot) and (not flag_secos) and (not flag_bbcb) and (not flag_uboot) and (not flag_uboot_bak) and (not flag_devtree) \
-                and (not flag_splash) and (not flag_otaloader):
+        if (not flag_pmp) and (not flag_secboot) and (not flag_secos) and (not flag_secos_bak) and (not flag_bbcb) and (not flag_uboot) and (not flag_uboot_bak) \
+                and (not flag_devtree) and (not flag_splash) and (not flag_otaloader):
             message = common.TEXT_FLASH_SUCCESS
         else:
             message = common.TEXT_FLASH_FAILED_PREFIX + message_secboot + message_secos + message_uboot + message_ubootbak + message_bbcb + message_devtree \
@@ -871,6 +875,26 @@ class Ui_MainWindow(object):
             QtWidgets.QMessageBox.critical(self.button_burn_secos,common.BURNERROR,"secos烧录失败")
         else:
             QtWidgets.QMessageBox.information(self.button_burn_secos,common.BURNSUCCESS,"secos烧录成功")
+
+        # secos bak
+        command = common.FLASH_PREFIX + common.SECOS_BACK_ADDRESS + " " + fileName
+        logging.debug("secos back command:" + command)
+
+        ret = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+        for line in ret.stdout.readlines():
+            logging.debug(line)
+            if str(line).count(common.BURN_ERROR_KEYWORD):
+                flag = True
+                break
+            else:
+                flag = False
+
+        ret.wait()
+
+        if(flag == True):
+            QtWidgets.QMessageBox.critical(self.button_burn_secos,common.BURNERROR,"secos备份烧录失败")
+        else:
+            QtWidgets.QMessageBox.information(self.button_burn_secos,common.BURNSUCCESS,"secos备份烧录成功")
 
     def lj_flash_uboot(self):
         '''
@@ -1427,7 +1451,9 @@ class Ui_MainWindow(object):
         :return:
         '''
 
-        flag = False
+        flag_secos = False
+        flag_secosbak = False
+
         command = common.FLASH_PREFIX + common.SECOS_ADDRESS + " " + fileName
         logging.debug("\r\n")
         logging.debug("secos command all:" + command)
@@ -1436,14 +1462,30 @@ class Ui_MainWindow(object):
         for line in ret.stdout.readlines():
             logging.debug(line)
             if str(line).count(common.BURN_ERROR_KEYWORD):
-                flag = True
+                flag_secos = True
                 break
             else:
-                flag = False
+                flag_secos = False
 
         ret.wait()
 
-        return flag
+        # secos back
+        command = common.FLASH_PREFIX + common.SECOS_BACK_ADDRESS + " " + fileName
+        logging.debug("\r\n")
+        logging.debug("secos back command all:" + command)
+
+        ret = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+        for line in ret.stdout.readlines():
+            logging.debug(line)
+            if str(line).count(common.BURN_ERROR_KEYWORD):
+                flag_secosbak = True
+                break
+            else:
+                flag_secosbak = False
+
+        ret.wait()
+
+        return flag_secos,flag_secosbak
 
     def lj_flash_uboot_all(self,fileName):
         '''
