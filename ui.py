@@ -682,7 +682,11 @@ class Ui_MainWindow(object):
             QtWidgets.QMessageBox.critical(self.button_flash_bbcb,common.BURNERROR,"序列号必须是8位")
             return
 
+<<<<<<< HEAD
         if (len(self.lineEdit_random_number.text()) != 8) and (len(self.lineEdit_random_number.text()) != 0):
+=======
+        if len(self.lineEdit_random_number.text()) != 8:
+>>>>>>> 69b21f55beed3d821332a95ad24feb5ebca046a2
             QtWidgets.QMessageBox.critical(self.button_flash_bbcb,common.BURNERROR,"random number必须是8位")
             return
 
@@ -1469,6 +1473,7 @@ class Ui_MainWindow(object):
 
         ret.wait()
 
+<<<<<<< HEAD
         # secos back
         command = common.FLASH_PREFIX + common.SECOS_BACK_ADDRESS + " " + fileName
         logging.debug("\r\n")
@@ -1486,6 +1491,9 @@ class Ui_MainWindow(object):
         ret.wait()
 
         return flag_secos,flag_secosbak
+=======
+        return flag
+>>>>>>> 69b21f55beed3d821332a95ad24feb5ebca046a2
 
     def lj_flash_uboot_all(self,fileName):
         '''
