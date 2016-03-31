@@ -1,0 +1,21 @@
+<root>
+  <FirstRound>
+    <pmp.toc address="pmp" md5="7b53d24fbe2407805fbc39fd25a9ecda" name="pmp.toc" path="ltsigned/pmp.toc" />
+    <u-bootbak.toc address="1oc00" md5="5bad05b9a0d76cc71ca07b99e5a3bece" name="u-bootbak.toc" path="ltsigned/u-boot.toc" />
+    <secboot.toc address="1o0" md5="a69c99a25d1e1d4410a48ca4ed8f2c52" name="secboot.toc" path="ltsigned/secboot.toc" />
+    <secos.toc address="2o0" md5="50ee9c170f5ea8b41715435720cc5e79" name="secos.toc" path="ltsigned/secos.toc" />
+    <secosbak.toc address="2o800" md5="50ee9c170f5ea8b41715435720cc5e79" name="secosbak.toc" path="ltsigned/secos.toc" />
+    <splash.dat address="Oo3000" md5="c67967fc95c821306aa1e6d2bdcf8341" name="splash.dat" path="ltsigned/splash.dat" />
+    <u-boot.toc address="1o400" md5="5bad05b9a0d76cc71ca07b99e5a3bece" name="u-boot.toc" path="ltsigned/u-boot.toc" />
+  </FirstRound>
+  <SecondRound>
+    <dvbdata.img address="dvbdata" md5="c925cf64d8042a2af70cd334db62db17" name="dvbdata.img" path="ltsigned/dvbdata.img" />
+    <boot.img address="boot" md5="332c7d227cfe08ec8f055adf7fbdb722" name="boot.img" path="ltsigned/boot.img" />
+    <iploader.img address="iploader" md5="29f8a52b7d7e652aad6f7f0c39c4247c" name="iploader.img" path="ltsigned/iploader.img" />
+    <otaloader.img address="otaloader" md5="06f744090fd3e4838447fdca4c2b3ac5" name="otaloader.img" path="ltsigned/otaloader.img" />
+    <cache.img address="cache" md5="9dff15ebc63baffa2519e3646886db4b" name="cache.img" path="ltsigned/cache.img" />
+    <userdata.img address="userdata" md5="2167e9800756eb86f377f701dd2b5180" name="userdata.img" path="ltsigned/userdata.img" />
+    <factorytest.img address="otaloaderbak" md5="a3be172f2115134ec8307c62a5c9e9f2" name="factorytest.img" path="ltsigned/factorytest.img" />
+    <system.img address="system" md5="6ebe690b0196034343b56bc55c871d59" name="system.img" path="ltsigned/system.img" />
+  </SecondRound>
+</root>

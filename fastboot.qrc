@@ -1,7 +1,0 @@
-<RCC version="1.0">
-    <qresource>
-        <file>icon/howto.png</file>
-        <file>icon/qt.png</file>
-        <file>icon/lj.jpg</file>
-    </qresource>
-</RCC>

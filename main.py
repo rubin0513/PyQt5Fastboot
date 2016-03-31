@@ -3,34 +3,16 @@ __author__ = 'djstava@gmail.com'
 
 import sys
 
-from PyQt5.QtWidgets import QApplication , QMainWindow
+from PyQt5.QtWidgets import QApplication
 
-from ui import *
-import common
+from ui.mainwindow import *
+from log.log import *
+from common.constant import LOGFILE
 
-def initLogConfiguration():
-    '''
-    初始化日志配置
-    '''
-    logging.basicConfig(level = logging.DEBUG,
-                        filename = common.LOGFILE,
-                        filemode = 'a+',
-                        format = '%(asctime)s - %(filename)s - line %(lineno)-4d - %(levelname)s - %(message)s',
-                        datefmt = '%m-%d %H:%M')
-
-if __name__ == '__main__':
-    '''
-    主函数
-    '''
-    initLogConfiguration()
+if __name__ == "__main__":
+    PandaLog().initLogConfiguration(LOGFILE)
 
     app = QApplication(sys.argv)
-    mainWindow = QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(mainWindow)
+    mainWindow = MainWindow()
     mainWindow.show()
-
-    ui.startDetectDevice()
-    ui.lj_load_default_bbcb()
-
     sys.exit(app.exec_())
