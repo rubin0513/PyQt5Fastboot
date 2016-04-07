@@ -82,6 +82,37 @@ class MySQLCommand(object):
 
         return self.flag
 
+    def queryMysqlSNByMAC(self,mac):
+        sql = "SELECT * FROM " + self.table + " WHERE macAddr0='" + mac + "'"
+        print("query sql: " + sql)
+        logging.info("query sql: " + sql)
+
+        try:
+            self.cursor.execute(sql)
+            row = self.cursor.fetchone()
+            if row:
+                return row[3]
+        except:
+            print(sql + ' execute failed.')
+            logging.error(sql + ' execute failed.')
+
+    def queryMysqlSN(self,sn):
+        sql = "SELECT * FROM " + self.table + " WHERE sn='" + sn + "'"
+        print("query sql: " + sql)
+        logging.info("query sql: " + sql)
+        flag = False
+
+        try:
+            self.cursor.execute(sql)
+            row = self.cursor.fetchone()
+            if row:
+                flag = True
+        except:
+            print(sql + ' execute failed.')
+            logging.error(sql + ' execute failed.')
+
+        return flag
+
     def closeMysql(self):
         self.cursor.close()
         self.conn.close()

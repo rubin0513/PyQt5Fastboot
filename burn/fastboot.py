@@ -14,6 +14,9 @@ from common.constant import FASTBOOT_SOCID_KEYWORD
 from common.constant import FASTBOOT_CMD_CALCCPCB_PREFIX
 from common.constant import FASTBOOT_CPCB_KEYWORD
 from common.constant import FASTBOOT_ERROR_TIMEOUT_IN_SECONDS
+from common.constant import FASTBOOT_CMD_LAMP_RED_ON,FASTBOOT_CMD_LAMP_RED_FAST,FASTBOOT_CMD_LAMP_RED_SLOW
+from common.constant import FASTBOOT_CMD_LAMP_GREEN_ON,FASTBOOT_CMD_LAMP_GREEN_FAST,FASTBOOT_CMD_LAMP_GREEN_SLOW
+from common.constant import FASTBOOT_LAMP_OK_KEYWORD,FASTBOOT_CMD_MAC_PREFIX,FASTBOOT_GETMAC_KEYWORD
 
 class FastbootDevices(object):
     def __init__(self):
@@ -37,6 +40,30 @@ class FastbootDevices(object):
         process.wait()
 
         return self.onLineDevices
+
+class FastbootShowDevices(object):
+    def __init__(self):
+        pass
+
+    @classmethod
+    def getOnLineDevices(self):
+
+        logging.info("\r\n")
+        onLineDevices = []
+        command = FASTBOOT_CMD_DEVICES_PREFIX
+        logging.info("command: " + command)
+
+        process = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+        for line in process.stdout.readlines():
+            if str(line).count(FASTBOOT_DEVICES_KEYWORD):
+                index = str(line).find('usb')
+                deviceID = str(line)[index:-3]
+                logging.info("online devices:" + deviceID)
+                onLineDevices.append(deviceID)
+
+        process.wait()
+
+        return onLineDevices
 
 
 class FastbootSoCID(object):
@@ -70,6 +97,25 @@ class FastbootSoCID(object):
         process.wait()
 
         return socid,status
+
+class FastbootMACCommand(object):
+    @classmethod
+    def getMAC(self,deviceID):
+
+        mac = ''
+
+        command = FASTBOOT_CMD_MAC_PREFIX + deviceID
+        logging.info("command: " + command)
+
+        process = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+        for line in process.stdout.readlines():
+            if str(line).count(FASTBOOT_GETMAC_KEYWORD):
+                mac = str(line)[10:-3]
+                break
+
+        process.wait()
+
+        return mac
 
 class FastbootCalcCPCB(object):
     @classmethod
@@ -117,3 +163,90 @@ class FastbootFlash(object):
 
         return flag
 
+class FastbootLampCommand(object):
+    def __init__(self):
+        pass
+
+    @classmethod
+    def setRedOn(self,deviceID):
+        logging.info("\r\n")
+
+        command = FASTBOOT_CMD_LAMP_RED_ON + deviceID
+        logging.info("command: " + command)
+
+        process = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+        for line in process.stdout.readlines():
+            if str(line).count(FASTBOOT_LAMP_OK_KEYWORD):
+                logging.info(command + " OK.")
+
+        process.wait()
+
+    @classmethod
+    def setRedFast(self,deviceID):
+        logging.info("\r\n")
+
+        command = FASTBOOT_CMD_LAMP_RED_FAST + deviceID
+        logging.info("command: " + command)
+
+        process = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+        for line in process.stdout.readlines():
+            if str(line).count(FASTBOOT_LAMP_OK_KEYWORD):
+                logging.info(command + " OK.")
+
+        process.wait()
+
+    @classmethod
+    def setRedSlow(self,deviceID):
+        logging.info("\r\n")
+
+        command = FASTBOOT_CMD_LAMP_RED_SLOW + deviceID
+        logging.info("command: " + command)
+
+        process = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+        for line in process.stdout.readlines():
+            if str(line).count(FASTBOOT_LAMP_OK_KEYWORD):
+                logging.info(command + " OK.")
+
+        process.wait()
+
+    @classmethod
+    def setGreenOn(self,deviceID):
+        logging.info("\r\n")
+
+        command = FASTBOOT_CMD_LAMP_GREEN_ON + deviceID
+        logging.info("command: " + command)
+
+        process = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+        for line in process.stdout.readlines():
+            if str(line).count(FASTBOOT_LAMP_OK_KEYWORD):
+                logging.info(command + " OK.")
+
+        process.wait()
+
+    @classmethod
+    def setGreenFast(self,deviceID):
+        logging.info("\r\n")
+
+        command = FASTBOOT_CMD_LAMP_GREEN_FAST + deviceID
+        logging.info("command: " + command)
+
+        process = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+        for line in process.stdout.readlines():
+            if str(line).count(FASTBOOT_LAMP_OK_KEYWORD):
+                logging.info(command + " OK.")
+
+        process.wait()
+
+    @classmethod
+    def setGreenSlow(self,deviceID):
+        logging.info("\r\n")
+
+        command = FASTBOOT_CMD_LAMP_GREEN_SLOW + deviceID
+        logging.info("command: " + command)
+
+        process = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+        for line in process.stdout.readlines():
+            if str(line).count(FASTBOOT_LAMP_OK_KEYWORD):
+                logging.info(command + " OK.")
+
+        process.wait()

@@ -165,8 +165,10 @@ def write_sysinfo(dictionary,modifyDict):
     wf.close()
     rf.close()
 
-def process_json(dict):
-    jsonfile = open("sysinfo/sysinfo.json", "rb")
+def process_json(jsonFile,dict):
+    print(dict)
+    logging.info(dict)
+    jsonfile = open(jsonFile, "rb")
     data = jsonfile.read()
     json_dict = json.loads(data.decode("utf-8"))
     write_sysinfo(json_dict,dict)

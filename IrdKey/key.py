@@ -15,7 +15,7 @@ class IrdKeyOP(object):
         pass
 
     @classmethod
-    def getKey(self,path,serialNum,randomNum):
+    def getKey(self,path,serialNum,randomNum,keyType):
         flag = True
 
         buffer = create_string_buffer(IRDETO_KEY_SIZE + 2)
@@ -26,7 +26,7 @@ class IrdKeyOP(object):
         func.argtypes = (c_int,c_char_p,c_char_p,c_void_p)
         func.restype = c_int
 
-        ret = func(IRDETO_CUSTOM_KEY,serialNum.encode('utf-8'),randomNum.encode('utf-8'),buffer)
+        ret = func(keyType,serialNum.encode('utf-8'),randomNum.encode('utf-8'),buffer)
         if ret == 0:
             crc = self.calcStrCRC(self,buffer=buffer[2:],size=IRDETO_KEY_SIZE)
 
