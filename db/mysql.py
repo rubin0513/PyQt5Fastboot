@@ -18,7 +18,7 @@ class MySQLCommand(object):
         flag = True
 
         try:
-            self.conn = pymysql.connect(host=self.host,port=self.port,user=self.user,passwd=self.password,db=self.db,charset='utf8')
+            self.conn = pymysql.connect(host=self.host,port=self.port,user=self.user,passwd=self.password,db=self.db,connect_timeout=3,charset='utf8')
             self.cursor = self.conn.cursor()
             flag = True
         except:
@@ -28,8 +28,8 @@ class MySQLCommand(object):
 
         return flag
 
-    def queryMysql(self,stbType):
-        sql = "SELECT * FROM " + self.table + " WHERE status='0' and stbType='" + stbType + "'"
+    def queryMysql(self,stbType,poNumber):
+        sql = "SELECT * FROM " + self.table + " WHERE status='0' and stbType='" + stbType + "' and po='" + poNumber + "'"
         print("query sql: " + sql)
         logging.info("query sql: " + sql)
 
@@ -112,6 +112,38 @@ class MySQLCommand(object):
             logging.error(sql + ' execute failed.')
 
         return flag
+
+    def queryAvailableMACByStatus(self,poNumber):
+        sql = "SELECT count(*) FROM " + self.table + " WHERE status='0' and po='" + poNumber + "'";
+        print("query sql: " + sql)
+        # logging.info("query sql: " + sql)
+
+        try:
+            self.cursor.execute(sql)
+            row = self.cursor.fetchall()
+            print(row[0][0])
+
+        except:
+            print(sql + ' execute failed.')
+            logging.error(sql + ' execute failed.')
+
+        return row[0][0]
+
+    def queryAvailableMACByPON(self,pon):
+        sql = "SELECT count(*) FROM " + self.table + " WHERE po='" + pon +"' and status='0'";
+        print("query sql: " + sql)
+        logging.info("query sql: " + sql)
+
+        try:
+            self.cursor.execute(sql)
+            row = self.cursor.fetchall()
+            print(row[0][0])
+
+        except:
+            print(sql + ' execute failed.')
+            logging.error(sql + ' execute failed.')
+
+        return row[0][0]
 
     def closeMysql(self):
         self.cursor.close()

@@ -7,7 +7,7 @@ import shutil
 from threading import Thread,active_count,RLock
 
 from PyQt5.QtWidgets import QMessageBox
-from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QMainWindow,QInputDialog,QLineEdit
 from PyQt5.QtCore import pyqtSignal,QTimer
 
 from common.constant import HOWTOUSE
@@ -24,12 +24,14 @@ from common.constant import FASTBOOT_ERROR_SECONDROUND_NEEDED,FASTBOOT_ERROR_FIR
 from common.constant import IRDETO_IRDETO_LIB_PATH,IRDETO_GET_KEY_ERROR,IRDETO_CADATA_FILE
 from common.constant import PRINTER_OK_MSG,PRINTER_BURN_NEEDED_MSG
 from common.constant import FASTBOOT_ERROR_GET_SERIALNUMBER,PRINTER_ERROR_MSG
-from common.constant import FASTBOOT_SHOW_DEVICES_COUNT_TIMEOUT
+from common.constant import FASTBOOT_SHOW_DEVICES_COUNT_TIMEOUT,MYSQL_SHOW_AVAILABLE_MAC_COUNT_TIMEOUT
 from common.constant import CONFIGSYSXML,SYSXMLNOTFOUND
-from common.constant import MYSQL_CONNECT_ERROR
-from common.constant import SYSINFOJSONFILE
+from common.constant import MYSQL_CONNECT_ERROR,MYSQL_BACKUP_SUCCESS,MYSQL_BACKUP_FAILED,MYSQL_INFO_BACKUP
+from common.constant import SYSINFOJSONFILE,FASTBOOT_ERROR_NOT_INSTALLED,MYSQL_ERROR_DUMP_NOT_INSTALLED
+from common.constant import PO_INPUTDIALOG_INFO,PO_INPUTDIALOG_TITLE,PO_INPUTDIALOG_PONUMBER_HINT
 
 from ui.ui_mainwindow import *
+from ui.queryForm import *
 from burn.xml import *
 from burn.fastboot import *
 from sysinfo.generator import process_json
@@ -60,6 +62,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         super(MainWindow, self).__init__(parent)
         self.setupUi(self)
 
+        self.checkFastbootTool()
+
         self.actionExit.triggered.connect(self.close)
 
         self.actionCopy.triggered.connect(self.onCopyTriggered)
@@ -68,6 +72,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.actionHelp.triggered.connect(self.onHelpTriggered)
         self.actionAbout.triggered.connect(self.onAboutTriggered)
+        self.action_backupDB.triggered.connect(self.onBackupDBTriggered)
 
         self.firstRoundButton.clicked.connect(self.onFirstRoundClicked)
         self.secondRoundButton.clicked.connect(self.onSecondRoundClicked)
@@ -89,6 +94,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         logging.info(self.firstRoundList)
         logging.info(self.secondRoundList)
 
+        self.poNumber = ''
+        self.showPONInputDialog()
+
         self.burnFlag = False
         self.flag = True
         self.lock = RLock()
@@ -108,8 +116,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.getSnErrSignal.connect(self.slotShowMessage)
         self.printMACSNErrSignal.connect(self.slotShowMessage)
 
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.showCurrentDevices)
+        self.timerDevice = QTimer(self)
+        self.timerMAC = QTimer(self)
+        self.timerDevice.timeout.connect(self.showCurrentDevices)
+        self.timerMAC.timeout.connect(self.showCurrentAvailableMAC)
         self.startCount()
 
     def onCopyTriggered(self):
@@ -137,18 +147,52 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         process_json(jsonFile=SYSINFOJSONFILE,dict=modifyDict)
 
     def onHelpTriggered(self):
-        versionMsg = self.sysXMLDict['version']
-        QMessageBox.information(self.menubar,HOWTOUSE,HOWTOTEXT + '4、当前版本v' + versionMsg)
+
+        QMessageBox.information(self.menubar,HOWTOUSE,HOWTOTEXT)
 
     def onAboutTriggered(self):
         '''
         显示软件信息
         :return:
         '''
-        QMessageBox.aboutQt(self.menubar,"AboutQt")
+
+        versionMsg = self.sysXMLDict['version']
+        QMessageBox.about(self.menubar,'软件信息','版本v' + versionMsg)
+
+    def onBackupDBTriggered(self):
+
+        self.checkMysqldumpTool()
+
+        backupFlag = True
+        fileName,okPressed = QInputDialog.getText(self,"数据库备份","请输入文件名:",QLineEdit.Normal, "dbback.sql")
+        if okPressed and fileName.strip():
+            print('DBBackupFile:' + fileName)
+            logging.info('DBBackupFile:' + fileName)
+
+            logging.info("\r\n")
+
+            command = 'mysqldump -u' + self.sysXMLDict['mysqluser'] + ' -h ' + self.sysXMLDict['mysqlhost'] + ' -p' + self.sysXMLDict['mysqlpassword'] \
+                        + ' ' + self.sysXMLDict['mysqldatabase'] + ' ' + self.sysXMLDict['mysqltable'] + '>' + fileName
+            print(command)
+            logging.info("Backup DB command: " + command)
+
+            process = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+            for line in process.stdout.readlines():
+                if str(line).count('error'):
+                    backupFlag = False
+                    break
+
+            process.wait()
+
+            if backupFlag:
+                QMessageBox.information(self,SUCCESSTITLE,MYSQL_BACKUP_SUCCESS)
+            else:
+                QMessageBox.critical(self,ERRORTITLE,MYSQL_BACKUP_FAILED)
+
+        else:
+            QMessageBox.critical(self,ERRORTITLE,MYSQL_INFO_BACKUP)
 
     def parseXMLFile(self,path):
-
         if not os.path.exists(path):
             QMessageBox.critical(self.firstRoundButton,ERRORTITLE,XMLNOTFOUND)
             return
@@ -177,9 +221,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             t.setDaemon(True)
             t.start()
 
-        self.firstRoundButton.setCheckable(True)
-        self.secondRoundButton.setCheckable(True)
-
         while True:
             if active_count() == 1:
                 if self.flag:
@@ -204,9 +245,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             t.setDaemon(True)
             t.start()
 
-        self.firstRoundButton.setCheckable(True)
-        self.secondRoundButton.setCheckable(True)
-
         while True:
             if active_count() == 1:
                 if self.flag:
@@ -223,7 +261,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.onlineDevices = fastboot.getOnLineDevices()
 
         if not self.onlineDevices:
-            QMessageBox.critical(self.secondRoundButton,ERRORTITLE,FASTBOOT_ERROR_MSG_NO_DEVICE_ONLINE)
+            QMessageBox.critical(self.printButton,ERRORTITLE,FASTBOOT_ERROR_MSG_NO_DEVICE_ONLINE)
             return
 
         for i in range(len(self.onlineDevices)):
@@ -233,6 +271,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         while True:
             if active_count() == 1:
+
                 if self.flag:
                     QMessageBox.information(self.printButton,SUCCESSTITLE,PRINTER_OK_MSG)
                     print("Printer over.")
@@ -243,8 +282,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def firstRoundThreadTarget(self, device):
         print('FirstRoundThreadTarget' + device)
-        self.firstRoundButton.setCheckable(False)
-        self.secondRoundButton.setCheckable(False)
 
         # get socid
         temp,statusFlag = FastbootSoCID().getSoCID(deviceID=device)
@@ -275,15 +312,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 if not flagAgain:
                     print('FirstRound flash error secondly!' + image['name'])
                     logging.error('FirstRound flash error secondly!' + image['name'])
+                    self.flag = False
+                    FastbootLampCommand.setRedOn(deviceID=device)
                     self.burnErrSignal.emit(BURN_ERROR)
                     return
 
     def secondRoundThreadTarget(self,device,imageTurple):
         print('SecondRoundThreadTarget:' + device)
         FastbootLampCommand.setRedFast(deviceID=device)
-
-        self.firstRoundButton.setCheckable(False)
-        self.secondRoundButton.setCheckable(False)
+        needCalcCPCBFlag = False
 
         dictionary = {}
         secondModifyList = []
@@ -311,6 +348,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.flag = False
                 return
 
+            if image['address'] == 'iploader':
+                needCalcCPCBFlag = True
+
         # socidFormat = self.socIDFormatter(socid)
         socidFormat = str(socid)
         logging.info('\r\n')
@@ -333,8 +373,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         snExistFlag = mysql.queryMysqlSN(sn=socidFormat)
         if not snExistFlag:
             # 序列号不在数据库中，重新获取MAC，更新序列号
-            mac = mysql.queryMysql(self.sysXMLDict['mysqlstbtype'])
-            print('get mac from db:')
+            mac = mysql.queryMysql(self.sysXMLDict['mysqlstbtype'],self.poNumber)
+            print('get mac from db=')
             print(mac)
             logging.info('get mac from db=')
             logging.info(mac)
@@ -370,7 +410,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             # 已经是烧录过的盒子，使用已有MAC,macFormat带冒号
             macFormat = FastbootMACCommand.getMAC(deviceID=device)
             dictionary['STB_MAC'] = str(macFormat)
-            print('burned stb MAC:')
+            print('burned stb MAC=')
             print(macFormat)
             logging.info('burned stb MAC=')
             logging.info(macFormat)
@@ -384,10 +424,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         print("random number:" + randomNum)
         logging.info("random number:" + randomNum)
 
+        dictionary['BOOT_METHOD'] = 'normal'
+        # 检查包中是否有factorytest.img镜像
+        for imgList in secondModifyList:
+            if imgList['name'] == 'factorytest.img' and imgList['address'] == 'otaloaderbak':
+                dictionary['BOOT_METHOD'] = '0x98'
+                break
+
         # generater sysinfo
         dictionary['STB_CA_KEY'] = str(socidFormat)
         dictionary['STB_ID'] = str(socidFormat)
-        dictionary['STB_CHIP_ID'] = str(socidFormat)
+        dictionary['STB_CHIP_ID'] = str(serialNumber)
         dictionary['IRDETO_SECURE_CHIP_SN'] = str(serialNumber)
         dictionary['IRDETO_RANDOM_NUMBER'] = str(randomNum)
 
@@ -455,23 +502,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         secondModifyList.remove(dict_cadata)
 
         # uboot cacl CPCB
-        self.burnFlag = FastbootCalcCPCB.calcCPCB(deviceID=device)
-        if not self.burnFlag:
-            print('calc cpcb error.')
-            logging.error('calc cpcb error.')
-            self.flag = False
-            self.cpcbErrSignal.emit(FASTBOOT_ERROR_CALC_CPCB)
-            FastbootLampCommand.setRedOn(deviceID=device)
-            return
+        if needCalcCPCBFlag:
+            print('start to calc cpcb.')
+            logging.info('start to cacl cpcb.')
+            self.burnFlag = FastbootCalcCPCB.calcCPCB(deviceID=device)
+            if not self.burnFlag:
+                print('calc cpcb error.')
+                logging.error('calc cpcb error.')
+                self.flag = False
+                self.cpcbErrSignal.emit(FASTBOOT_ERROR_CALC_CPCB)
+                FastbootLampCommand.setRedOn(deviceID=device)
+                return
 
         self.deleteTocDir('soc' + socidFormat)
         FastbootLampCommand.setGreenOn(deviceID=device)
 
     def printerThreadTarget(self,device):
-        print('FirstRoundThreadTarget' + device)
-        self.firstRoundButton.setCheckable(False)
-        self.secondRoundButton.setCheckable(False)
-        self.printButton.setCheckable(False)
+        print('printerThreadTarget' + device)
 
         # get mac
         macAddr0 = FastbootMACCommand().getMAC(deviceID=device)
@@ -484,7 +531,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         mac = ''.join(macAddr0.split(':'))
         print(mac)
 
-        mysql = MySQLCommand(host=MYSQL_HOST,port=MYSQL_PORT,user=MYSQL_USERNAME,passwd=MYSQL_PASSWORD,db=MYSQL_DATABASE,table=MYSQL_TABLE)
+        mysql = MySQLCommand(host=self.sysXMLDict['mysqlhost'],port=int(self.sysXMLDict['mysqlport']),user=self.sysXMLDict['mysqluser'],\
+                             passwd=self.sysXMLDict['mysqlpassword'],db=self.sysXMLDict['mysqldatabase'],table=self.sysXMLDict['mysqltable'])
 
         mysqlConFlag = mysql.connectMysql()
         if not mysqlConFlag:
@@ -503,9 +551,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             FastbootLampCommand.setRedOn(deviceID=device)
             return
         else:
-            printFlag = MacSNPrint.sendInfoToPrinter(host=self.sysXMLDict['printerhost'],port=self.sysXMLDict['printerport'],sn=sn,mac=mac)
+            printFlag = MacSNPrint.sendInfoToPrinter(host=self.sysXMLDict['printerhost'],port=int(self.sysXMLDict['printerport']),sn=sn,mac=mac)
             if not printFlag:
                 self.printMACSNErrSignal.emit(PRINTER_ERROR_MSG)
+                self.flag = False
                 FastbootLampCommand.setRedOn(deviceID=device)
             else:
                 FastbootLampCommand.setGreenOn(deviceID=device)
@@ -530,9 +579,52 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         curDevices = []
         curDevices = FastbootShowDevices.getOnLineDevices()
         print(curDevices)
-        logging.info(curDevices)
+        # logging.info(curDevices)
         self.label_count.setText(str(len(curDevices)))
 
     def startCount(self):
-        self.timer.start(FASTBOOT_SHOW_DEVICES_COUNT_TIMEOUT)
+        self.timerDevice.start(FASTBOOT_SHOW_DEVICES_COUNT_TIMEOUT)
+        self.timerMAC.start(MYSQL_SHOW_AVAILABLE_MAC_COUNT_TIMEOUT)
+
+    def showCurrentAvailableMAC(self):
+        mysql = MySQLCommand(host=self.sysXMLDict['mysqlhost'],port=int(self.sysXMLDict['mysqlport']),user=self.sysXMLDict['mysqluser'],\
+                             passwd=self.sysXMLDict['mysqlpassword'],db=self.sysXMLDict['mysqldatabase'],table=self.sysXMLDict['mysqltable'])
+
+        mysqlConFlag = mysql.connectMysql()
+        if not mysqlConFlag:
+            self.mysqlConnectErrSignal.emit(MYSQL_CONNECT_ERROR)
+            return
+
+        self.lock.acquire()
+        macCount = mysql.queryAvailableMACByStatus(self.poNumber)
+        self.label_maccount.setText(str(macCount))
+        self.lock.release()
+        mysql.closeMysql()
+
+    def onActionQueryTriggered(self):
+        self.queryForm = QueryForm(self.sysXMLDict)
+        self.queryForm.show()
+
+    def showPONInputDialog(self):
+        opN,okPressed = QInputDialog.getText(self,PO_INPUTDIALOG_TITLE,PO_INPUTDIALOG_PONUMBER_HINT,QLineEdit.Normal, " ")
+        if okPressed and opN.strip():
+            print('PON:' + opN)
+            logging.info('PON:' + opN)
+            self.poNumber = opN
+            self.lineedit_order.setText(self.poNumber)
+
+        else:
+            QMessageBox.critical(self,ERRORTITLE,PO_INPUTDIALOG_INFO)
+            exit(1)
+
+    def checkFastbootTool(self):
+        if not os.path.exists('/usr/bin/fastboot') and not os.path.exists('fastboot'):
+            QMessageBox.critical(self,ERRORTITLE,FASTBOOT_ERROR_NOT_INSTALLED)
+            exit(1)
+
+    def checkMysqldumpTool(self):
+        if not os.path.exists('/usr/bin/mysqldump'):
+            QMessageBox.critical(self,ERRORTITLE,MYSQL_ERROR_DUMP_NOT_INSTALLED)
+            exit(1)
+
 

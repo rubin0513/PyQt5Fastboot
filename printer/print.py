@@ -4,7 +4,7 @@ __author__ = 'djstava@gmail.com'
 import socket
 import logging
 
-from common.constant import PRINTER_OP_TIMEOUT
+from common.constant import PRINTER_OP_TIMEOUT,PRINTER_DEFAULT_SIZE,PRINTER_SERVER_START,PRINTER_SERVER_OVER
 
 class MacSNPrint(object):
     def __init__(self):

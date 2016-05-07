@@ -27,14 +27,12 @@ class FastbootDevices(object):
         logging.info("\r\n")
 
         command = FASTBOOT_CMD_DEVICES_PREFIX
-        logging.info("command: " + command)
 
         process = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
         for line in process.stdout.readlines():
             if str(line).count(FASTBOOT_DEVICES_KEYWORD):
                 index = str(line).find('usb')
                 deviceID = str(line)[index:-3]
-                logging.info("online devices:" + deviceID)
                 self.onLineDevices.append(deviceID)
 
         process.wait()
@@ -81,7 +79,6 @@ class FastbootSoCID(object):
         deadline = time.time() + FASTBOOT_ERROR_TIMEOUT_IN_SECONDS
 
         command = FASTBOOT_CMD_SOCID_PREFIX + deviceID
-        logging.info("command: " + command)
 
         process = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
         for line in process.stdout.readlines():

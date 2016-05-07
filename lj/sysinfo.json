@@ -34,7 +34,8 @@
                     {"key":"STB_OTALOADER_VERSION", "value":"1.0.01"},
                     {"key":"STB_IPLOADER_VERSION", "value":"1.0.00"},
                     {"key":"DHCP_VENDOR_ID", "value":"OpenCable2.0:LJTE001"},
-                    {"key":"LT_PRIVATE_DATA", "value":""}
+                    {"key":"LT_PRIVATE_DATA", "value":""},
+                    {"key":"STB_CIR_PROTOCOL", "value":"PZ-OCN"}
                 ]
             }
         ]
