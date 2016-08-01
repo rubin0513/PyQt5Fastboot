@@ -29,9 +29,9 @@ from common.constant import CONFIGSYSXML,SYSXMLNOTFOUND
 from common.constant import MYSQL_CONNECT_ERROR,MYSQL_BACKUP_SUCCESS,MYSQL_BACKUP_FAILED,MYSQL_INFO_BACKUP
 from common.constant import SYSINFOJSONFILE,FASTBOOT_ERROR_NOT_INSTALLED,MYSQL_ERROR_DUMP_NOT_INSTALLED
 from common.constant import PO_INPUTDIALOG_INFO,PO_INPUTDIALOG_TITLE,PO_INPUTDIALOG_PONUMBER_HINT
+from common.constant import RESET_MAC_SUCCESS,RESET_MAC_FAILED,RESET_MAC_INFO,FASTBOOT_ERROR_RESET_MAC_STATUS
 
 from ui.ui_mainwindow import *
-from ui.queryForm import *
 from burn.xml import *
 from burn.fastboot import *
 from sysinfo.generator import process_json
@@ -57,6 +57,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     burnNeededSignal = pyqtSignal(object)
     getSnErrSignal = pyqtSignal(object)
     printMACSNErrSignal = pyqtSignal(object)
+    secondThreadEndSignal = pyqtSignal(object)
+    firstThreadEndSignal = pyqtSignal(object)
+    printThreadEndSignal = pyqtSignal(object)
+    resetMysqlErrSignal = pyqtSignal(object)
 
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
@@ -73,6 +77,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionHelp.triggered.connect(self.onHelpTriggered)
         self.actionAbout.triggered.connect(self.onAboutTriggered)
         self.action_backupDB.triggered.connect(self.onBackupDBTriggered)
+        self.action_reset_mac.triggered.connect(self.onResetMACTriggered)
 
         self.firstRoundButton.clicked.connect(self.onFirstRoundClicked)
         self.secondRoundButton.clicked.connect(self.onSecondRoundClicked)
@@ -94,11 +99,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         logging.info(self.firstRoundList)
         logging.info(self.secondRoundList)
 
+        self.firstPhaseCount = 0
+        self.firstPhaseErrCount = 0
+
+        self.secondPhaseCount = 0
+        self.secondPhaseErrCount = 0
+
+        self.printPhaseCount = 0
+        self.printPhaseErrCount = 0
+
         self.poNumber = ''
         self.showPONInputDialog()
 
         self.burnFlag = False
-        self.flag = True
         self.lock = RLock()
 
         self.checksumErrSignal.connect(self.slotShowMessage)
@@ -109,17 +122,27 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.firstRoundNeededSignal.connect(self.slotShowMessage)
         self.secondRoundNeededSignal.connect(self.slotShowMessage)
         self.updateMysqlErrSignal.connect(self.slotShowMessage)
+        self.resetMysqlErrSignal.connect(self.slotShowMessage)
         self.imageNotFoundSignal.connect(self.slotShowMessage)
         self.irdetoKeyErrSignal.connect(self.slotShowMessage)
         self.mysqlConnectErrSignal.connect(self.slotShowMessage)
         self.burnNeededSignal.connect(self.slotShowMessage)
         self.getSnErrSignal.connect(self.slotShowMessage)
         self.printMACSNErrSignal.connect(self.slotShowMessage)
+        self.secondThreadEndSignal.connect(self.secondSlotThreadOver)
+        self.firstThreadEndSignal.connect(self.firstSlotThreadOver)
+        self.printThreadEndSignal.connect(self.printSlotThreadOver)
 
         self.timerDevice = QTimer(self)
         self.timerMAC = QTimer(self)
         self.timerDevice.timeout.connect(self.showCurrentDevices)
-        self.timerMAC.timeout.connect(self.showCurrentAvailableMAC)
+
+        if(self.sysXMLDict['isNeedToConnectMysql'] == 'yes'):
+            self.timerMAC.timeout.connect(self.showCurrentAvailableMAC)
+            self.timerMAC.start(MYSQL_SHOW_AVAILABLE_MAC_COUNT_TIMEOUT)
+        elif(self.sysXMLDict['isNeedToConnectMysql'] == 'no'):
+            pass
+
         self.startCount()
 
     def onCopyTriggered(self):
@@ -192,6 +215,34 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             QMessageBox.critical(self,ERRORTITLE,MYSQL_INFO_BACKUP)
 
+    def onResetMACTriggered(self):
+        resetFlag = False
+        mac,okPressed = QInputDialog.getText(self,"MAC状态重置","请输入MAC号:",QLineEdit.Normal, " ")
+        if okPressed and mac.strip():
+            print('mac:' + mac)
+            logging.info('mac:' + mac)
+            logging.info("\r\n")
+
+            mysql = MySQLCommand(host=self.sysXMLDict['mysqlhost'],port=int(self.sysXMLDict['mysqlport']),user=self.sysXMLDict['mysqluser'],\
+                             passwd=self.sysXMLDict['mysqlpassword'],db=self.sysXMLDict['mysqldatabase'],table=self.sysXMLDict['mysqltable'])
+            mysqlConFlag = mysql.connectMysql()
+            if not mysqlConFlag:
+                self.mysqlConnectErrSignal.emit(MYSQL_CONNECT_ERROR)
+                return
+
+            self.lock.acquire()
+            resetFlag = mysql.resetMysqlMACStatusAndSN(mac=mac)
+            if resetFlag:
+                QMessageBox.information(self,SUCCESSTITLE,RESET_MAC_SUCCESS)
+            else:
+                QMessageBox.critical(self,ERRORTITLE,RESET_MAC_FAILED)
+
+            self.lock.release()
+            mysql.closeMysql()
+
+        else:
+            QMessageBox.critical(self,ERRORTITLE,RESET_MAC_INFO)
+
     def parseXMLFile(self,path):
         if not os.path.exists(path):
             QMessageBox.critical(self.firstRoundButton,ERRORTITLE,XMLNOTFOUND)
@@ -209,7 +260,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             return sysXMLParse.getSysXMLDict()
 
     def onFirstRoundClicked(self):
-        self.flag = True
+        self.firstPhaseErrCount = 0
+        self.firstPhaseCount = 0
+
         fastboot = FastbootDevices()
         self.onlineDevices = fastboot.getOnLineDevices()
         if not self.onlineDevices:
@@ -221,17 +274,25 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             t.setDaemon(True)
             t.start()
 
-        while True:
-            if active_count() == 1:
-                if self.flag:
-                    print("FirstRound flash over.")
-                    QMessageBox.information(self.firstRoundButton,SUCCESSTITLE,BURN_FIRST_ROUND_OK)
-                else:
-                    print("Firstround error occured.")
-                break
+    def firstSlotThreadOver(self, flag):
+        print('First Thread Over flag:', flag)
+        logging.info('First Thread Over flag:' + str(flag))
+        self.firstPhaseCount += 1
+
+        if not flag:
+            self.firstPhaseErrCount += 1
+
+        if self.firstPhaseCount == len(self.onlineDevices):
+            if self.firstPhaseErrCount == 0:
+                QMessageBox.information(self.firstRoundButton, SUCCESSTITLE, BURN_FIRST_ROUND_OK)
+                logging.info("FirstRound flash over.")
+            else:
+                QMessageBox.critical(self.firstRoundButton,ERRORTITLE,self.firstPhaseErrCount + "pecs" + BURN_ERROR)
 
     def onSecondRoundClicked(self):
-        self.flag = True
+        self.secondPhaseCount = 0
+        self.secondPhaseErrCount = 0
+
         fastboot = FastbootDevices()
         self.onlineDevices.clear()
         self.onlineDevices = fastboot.getOnLineDevices()
@@ -245,17 +306,26 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             t.setDaemon(True)
             t.start()
 
-        while True:
-            if active_count() == 1:
-                if self.flag:
-                    QMessageBox.information(self.secondRoundButton,SUCCESSTITLE,BURN_SECOND_ROUND_OK)
-                    print("SecondRound flash over.")
-                else:
-                    print("Secondround error occured.")
-                break
+    def secondSlotThreadOver(self, flag):
+        print('Second Thread Over flag:', flag)
+        logging.info('Second Thread Over flag:' + str(flag))
+        self.secondPhaseCount += 1
+
+        if not flag:
+            self.secondPhaseErrCount += 1
+
+        if self.secondPhaseCount == len(self.onlineDevices):
+            if self.secondPhaseErrCount == 0:
+                QMessageBox.information(self.secondRoundButton, SUCCESSTITLE, BURN_SECOND_ROUND_OK)
+                logging.info("SecondRound flash over.")
+            else:
+                QMessageBox.critical(self.secondRoundButton, ERRORTITLE, self.secondPhaseErrCount + "pecs" + BURN_ERROR)
+                logging.error("SecondRound flash over error.")
 
     def onPrinterClicked(self):
-        self.flag = True
+        self.printPhaseCount = 0
+        self.printPhaseErrCount = 0
+
         fastboot = FastbootDevices()
         self.onlineDevices.clear()
         self.onlineDevices = fastboot.getOnLineDevices()
@@ -269,16 +339,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             t.setDaemon(True)
             t.start()
 
-        while True:
-            if active_count() == 1:
+    def printSlotThreadOver(self, flag):
+        print('Print Thread Over flag:', flag)
+        logging.info('Print Thread Over flag:' + str(flag))
+        self.printPhaseCount += 1
 
-                if self.flag:
-                    QMessageBox.information(self.printButton,SUCCESSTITLE,PRINTER_OK_MSG)
-                    print("Printer over.")
-                else:
-                    print("Printer error occured.")
-                break
+        if not flag:
+            self.printPhaseErrCount += 1
 
+        if self.printPhaseCount == len(self.onlineDevices):
+            if self.printPhaseErrCount == 0:
+                QMessageBox.information(self.printButton, SUCCESSTITLE, PRINTER_OK_MSG)
+                print("Print over.")
+            else:
+                QMessageBox.critical(self.printButton, ERRORTITLE, self.printPhaseErrCount + "pecs" + BURN_ERROR)
 
     def firstRoundThreadTarget(self, device):
         print('FirstRoundThreadTarget' + device)
@@ -287,20 +361,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         temp,statusFlag = FastbootSoCID().getSoCID(deviceID=device)
         if statusFlag:
             self.secondRoundNeededSignal.emit(FASTBOOT_ERROR_SECONDROUND_NEEDED)
-            self.flag = False
             FastbootLampCommand.setRedOn(deviceID=device)
             return
 
         for image in self.firstRoundList:
-            print(image['name'])
+            logging.info(image['name'])
             if not os.path.exists(image['path']):
                 self.imageNotFoundSignal.emit(IMAGEFILENOTFOUND)
-                self.flag = False
                 return
 
             if image['md5'] != CalcMD5().calcFileMd5(image['path']):
                 self.checksumErrSignal.emit(CHECKSUM_ERROR)
-                self.flag = False
                 FastbootLampCommand.setRedOn(deviceID=device)
                 return
 
@@ -312,10 +383,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 if not flagAgain:
                     print('FirstRound flash error secondly!' + image['name'])
                     logging.error('FirstRound flash error secondly!' + image['name'])
-                    self.flag = False
-                    FastbootLampCommand.setRedOn(deviceID=device)
                     self.burnErrSignal.emit(BURN_ERROR)
+                    FastbootLampCommand.setRedOn(deviceID=device)
                     return
+
+        self.firstThreadEndSignal.emit(True)
 
     def secondRoundThreadTarget(self,device,imageTurple):
         print('SecondRoundThreadTarget:' + device)
@@ -333,11 +405,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         socid,statusFlag = FastbootSoCID().getSoCID(deviceID=device)
         if not statusFlag:
             self.firstRoundNeededSignal.emit(FASTBOOT_ERROR_FIRSTROUND_NEEDED)
-            self.flag = False
             return
 
         if not len(socid):
-            self.flag = False
             self.socIDErrSignal.emit(FASTBOOT_ERROR_GET_SOCID)
             FastbootLampCommand.setRedOn(deviceID=device)
             return
@@ -345,7 +415,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         for image in secondModifyList:
             if not os.path.exists(image['path']):
                 self.imageNotFoundSignal.emit(IMAGEFILENOTFOUND)
-                self.flag = False
                 return
 
             if image['address'] == 'iploader':
@@ -366,21 +435,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if not mysqlConFlag:
             FastbootLampCommand.setRedOn(deviceID=device)
             self.mysqlConnectErrSignal.emit(MYSQL_CONNECT_ERROR)
-            self.flag = False
             return
 
         self.lock.acquire()
-        snExistFlag = mysql.queryMysqlSN(sn=socidFormat)
-        if not snExistFlag:
-            # 序列号不在数据库中，重新获取MAC，更新序列号
-            mac = mysql.queryMysql(self.sysXMLDict['mysqlstbtype'],self.poNumber)
+        snExistFlag = mysql.queryMysqlSN(sn=socidFormat,stbType=self.sysXMLDict['mysqlstbtype'],poNumber=self.poNumber)
+        macFormat = FastbootMACCommand.getMAC(deviceID=device)
+        if not snExistFlag or len(macFormat) == 0:
+            # 序列号不在数据库中或者stb MAC为空，重新获取MAC，更新序列号
+            mac = mysql.queryMysql(stbType=self.sysXMLDict['mysqlstbtype'],poNumber=self.poNumber)
             print('get mac from db=')
             print(mac)
             logging.info('get mac from db=')
             logging.info(mac)
 
             if not mac:
-                self.flag = False
                 self.getMacErrSignal.emit(FASTBOOT_ERROR_GET_MAC)
                 mysql.closeMysql()
                 self.lock.release()
@@ -388,20 +456,25 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 return
             else:
                 macAddr0 = mac
-                updateFlag = mysql.updateMysqlSN(mac=mac,sn=socidFormat)
+                updateFlag = mysql.updateMysqlSN(mac=mac,sn=socidFormat,stbType=self.sysXMLDict['mysqlstbtype'],poNumber=self.poNumber)
                 if not updateFlag:
-                    resetFlag = mysql.resetMysqlMACStatus(mac=mac)
-                    if not resetFlag:
-                        print("update mac status failed.")
-                        logging.error("update mac status failed.")
+                    # resetFlag = mysql.resetMysqlMACStatus(mac=mac,stbType=self.sysXMLDict['mysqlstbtype'],poNumber=self.poNumber)
+                    # if not resetFlag:
+                    #     print("reset mac status failed.")
+                    #     logging.error("reset mac status failed.")
+                    #     mysql.closeMysql()
+                    #     self.lock.release()
+                    #     self.resetMysqlErrSignal.emit(FASTBOOT_ERROR_RESET_MAC_STATUS)
+                    #     FastbootLampCommand.setRedOn(deviceID=device)
+                    #     return
 
                     print("Update mysql serialnum failed.")
                     logging.error("Update mysql serialnum failed.")
                     mysql.closeMysql()
                     self.lock.release()
-                    self.flag = False
-                    self.updateMysqlErrSignal.emit(FASTBOOT_ERROR_UPDATE_SN)
+                    self.updateMysqlErrSignal.emit(FASTBOOT_ERROR_RESET_MAC_STATUS)
                     FastbootLampCommand.setRedOn(deviceID=device)
+                    self.resetMysqlMACStatus(mac=mac)
                     return
                 else:
                     dictionary['STB_MAC'] = str(macAddr0[0:2] + ':' + macAddr0[2:4] + ':' + macAddr0[4:6] + ':' + macAddr0[6:8] + ':' + macAddr0[8:10] + ':' + macAddr0[10:12])
@@ -418,10 +491,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         mysql.closeMysql()
         self.lock.release()
 
-        logging.info('\r\n')
-
         randomNum = IrdKeyOP.getRandomNumber()
-        print("random number:" + randomNum)
+        # print("random number:" + randomNum)
         logging.info("random number:" + randomNum)
 
         dictionary['BOOT_METHOD'] = 'normal'
@@ -434,7 +505,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # generater sysinfo
         dictionary['STB_CA_KEY'] = str(socidFormat)
         dictionary['STB_ID'] = str(socidFormat)
-        dictionary['STB_CHIP_ID'] = str(serialNumber)
         dictionary['IRDETO_SECURE_CHIP_SN'] = str(serialNumber)
         dictionary['IRDETO_RANDOM_NUMBER'] = str(randomNum)
 
@@ -443,9 +513,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # get IrdetoKey
         irdetoKeyFlag = IrdKeyOP.getKey(path='soc' + socidFormat,serialNum=serialNumber,randomNum=randomNum,keyType=int(self.sysXMLDict['irdetokeytype']))
         if not irdetoKeyFlag:
-            self.flag = False
             self.irdetoKeyErrSignal.emit(IRDETO_GET_KEY_ERROR)
             FastbootLampCommand.setRedOn(deviceID=device)
+            self.resetMysqlMACAndSN(mac=dictionary['STB_MAC'])
             return
 
         dict_ro = {}
@@ -468,38 +538,50 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         dict_cadata['md5'] = ''
 
         if not dict_ro in secondModifyList:
-            secondModifyList.append(dict_ro)
+            secondModifyList.insert(0,dict_ro)
 
         if not dict_rw in secondModifyList:
-            secondModifyList.append(dict_rw)
+            secondModifyList.insert(1,dict_rw)
 
         if not dict_cadata in secondModifyList:
             secondModifyList.append(dict_cadata)
 
-        print(secondModifyList)
         logging.info(secondModifyList)
 
         for image in secondModifyList:
-            print(image['name'])
+            logging.info(image['name'])
             if image['address'] != 'systeminfo_ro' and image['address'] != 'systeminfo_rw' and image['address'] != 'cadata':
                 if image['md5'] != CalcMD5().calcFileMd5(image['path']):
-                    self.flag = False
                     self.checksumErrSignal.emit(CHECKSUM_ERROR)
                     FastbootLampCommand.setRedOn(deviceID=device)
+                    secondModifyList.remove(dict_ro)
+                    secondModifyList.remove(dict_rw)
+                    self.deleteTocDir('soc' + socidFormat)
+                    self.resetMysqlMACAndSN(mac=dictionary['STB_MAC'])
                     return
 
             self.burnFlag = FastbootFlash().flashImage(deviceID=device, imageAddress=image['address'],imagePath=image['path'])
             if not self.burnFlag:
                 print('SecondRound flash error!' + image['name'])
                 logging.error('SecondRound flash error!' + image['name'])
-                self.flag = False
                 self.burnErrSignal.emit(BURN_ERROR)
                 FastbootLampCommand.setRedOn(deviceID=device)
+                secondModifyList.remove(dict_ro)
+                secondModifyList.remove(dict_rw)
+                self.deleteTocDir('soc' + socidFormat)
+                self.resetMysqlMACAndSN(mac=dictionary['STB_MAC'])
                 return
 
-        secondModifyList.remove(dict_ro)
-        secondModifyList.remove(dict_rw)
-        secondModifyList.remove(dict_cadata)
+        if dict_ro in secondModifyList:
+            secondModifyList.remove(dict_ro)
+		
+        if dict_rw in secondModifyList:
+            secondModifyList.remove(dict_rw)
+			
+        if dict_cadata in secondModifyList:
+            secondModifyList.remove(dict_cadata)
+
+        self.deleteTocDir('soc' + socidFormat)
 
         # uboot cacl CPCB
         if needCalcCPCBFlag:
@@ -509,23 +591,76 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if not self.burnFlag:
                 print('calc cpcb error.')
                 logging.error('calc cpcb error.')
-                self.flag = False
                 self.cpcbErrSignal.emit(FASTBOOT_ERROR_CALC_CPCB)
                 FastbootLampCommand.setRedOn(deviceID=device)
+                self.resetMysqlMACAndSN(mac=dictionary['STB_MAC'])
                 return
 
-        self.deleteTocDir('soc' + socidFormat)
         FastbootLampCommand.setGreenOn(deviceID=device)
+        self.secondThreadEndSignal.emit(True)
+
+    def resetMysqlMACStatus(self,mac):
+        mysql = MySQLCommand(host=self.sysXMLDict['mysqlhost'], port=int(self.sysXMLDict['mysqlport']),
+                             user=self.sysXMLDict['mysqluser'], passwd=self.sysXMLDict['mysqlpassword'],
+                             db=self.sysXMLDict['mysqldatabase'], table=self.sysXMLDict['mysqltable'])
+
+        mysqlConFlag = mysql.connectMysql()
+        if not mysqlConFlag:
+            logging.info('reset status connect failed.')
+            return False
+
+        locker = RLock()
+        locker.acquire()
+
+        resetFlag = mysql.resetMysqlMACStatus(mac=mac,stbType=self.sysXMLDict['mysqlstbtype'], poNumber=self.poNumber)
+        if resetFlag:
+            logging.info('reset mysql status success.')
+        else:
+            logging.info('reset mysql status failed.')
+            mysql.closeMysql()
+            locker.release()
+            return False
+
+        mysql.closeMysql()
+        locker.release()
+
+        return True
+
+    def resetMysqlMACAndSN(self,mac):
+        mysql = MySQLCommand(host=self.sysXMLDict['mysqlhost'], port=int(self.sysXMLDict['mysqlport']),
+                             user=self.sysXMLDict['mysqluser'], passwd=self.sysXMLDict['mysqlpassword'],
+                             db=self.sysXMLDict['mysqldatabase'], table=self.sysXMLDict['mysqltable'])
+
+        mysqlConFlag = mysql.connectMysql()
+        if not mysqlConFlag:
+            logging.info('reset status connect failed.')
+            return False
+
+        locker = RLock()
+        locker.acquire()
+
+        resetFlag = mysql.resetMysqlMACStatusAndSN(mac=mac,stbType=self.sysXMLDict['mysqlstbtype'], poNumber=self.poNumber)
+        if resetFlag:
+            logging.info('reset mysql status success.')
+        else:
+            logging.info('reset mysql status failed.')
+            mysql.closeMysql()
+            locker.release()
+            return False
+
+        mysql.closeMysql()
+        locker.release()
+
+        return True
 
     def printerThreadTarget(self,device):
         print('printerThreadTarget' + device)
 
         # get mac
         macAddr0 = FastbootMACCommand().getMAC(deviceID=device)
-        print(macAddr0)
+        logging.info(macAddr0)
         if len(macAddr0) == 0:
             self.burnNeededSignal.emit(PRINTER_BURN_NEEDED_MSG)
-            self.flag = False
             return
 
         mac = ''.join(macAddr0.split(':'))
@@ -538,13 +673,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if not mysqlConFlag:
             FastbootLampCommand.setRedOn(deviceID=device)
             self.mysqlConnectErrSignal.emit(MYSQL_CONNECT_ERROR)
-            self.flag = False
             return
 
         self.lock.acquire()
         sn = mysql.queryMysqlSNByMAC(mac=mac)
         if not sn:
-            self.flag = False
             self.getSnErrSignal.emit(FASTBOOT_ERROR_GET_SERIALNUMBER)
             mysql.closeMysql()
             self.lock.release()
@@ -554,7 +687,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             printFlag = MacSNPrint.sendInfoToPrinter(host=self.sysXMLDict['printerhost'],port=int(self.sysXMLDict['printerport']),sn=sn,mac=mac)
             if not printFlag:
                 self.printMACSNErrSignal.emit(PRINTER_ERROR_MSG)
-                self.flag = False
                 FastbootLampCommand.setRedOn(deviceID=device)
             else:
                 FastbootLampCommand.setGreenOn(deviceID=device)
@@ -578,13 +710,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def showCurrentDevices(self):
         curDevices = []
         curDevices = FastbootShowDevices.getOnLineDevices()
-        print(curDevices)
+        # print(curDevices)
         # logging.info(curDevices)
         self.label_count.setText(str(len(curDevices)))
 
     def startCount(self):
         self.timerDevice.start(FASTBOOT_SHOW_DEVICES_COUNT_TIMEOUT)
-        self.timerMAC.start(MYSQL_SHOW_AVAILABLE_MAC_COUNT_TIMEOUT)
 
     def showCurrentAvailableMAC(self):
         mysql = MySQLCommand(host=self.sysXMLDict['mysqlhost'],port=int(self.sysXMLDict['mysqlport']),user=self.sysXMLDict['mysqluser'],\
@@ -596,7 +727,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             return
 
         self.lock.acquire()
-        macCount = mysql.queryAvailableMACByStatus(self.poNumber)
+        macCount = mysql.queryAvailableMACByStatus(self.poNumber,self.sysXMLDict['mysqlstbtype'])
         self.label_maccount.setText(str(macCount))
         self.lock.release()
         mysql.closeMysql()
@@ -608,8 +739,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def showPONInputDialog(self):
         opN,okPressed = QInputDialog.getText(self,PO_INPUTDIALOG_TITLE,PO_INPUTDIALOG_PONUMBER_HINT,QLineEdit.Normal, " ")
         if okPressed and opN.strip():
-            print('PON:' + opN)
-            logging.info('PON:' + opN)
             self.poNumber = opN
             self.lineedit_order.setText(self.poNumber)
 

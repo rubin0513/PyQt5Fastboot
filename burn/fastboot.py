@@ -46,17 +46,15 @@ class FastbootShowDevices(object):
     @classmethod
     def getOnLineDevices(self):
 
-        logging.info("\r\n")
         onLineDevices = []
         command = FASTBOOT_CMD_DEVICES_PREFIX
-        logging.info("command: " + command)
 
         process = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
         for line in process.stdout.readlines():
             if str(line).count(FASTBOOT_DEVICES_KEYWORD):
                 index = str(line).find('usb')
                 deviceID = str(line)[index:-3]
-                logging.info("online devices:" + deviceID)
+                # logging.info("online devices:" + deviceID)
                 onLineDevices.append(deviceID)
 
         process.wait()
@@ -102,7 +100,6 @@ class FastbootMACCommand(object):
         mac = ''
 
         command = FASTBOOT_CMD_MAC_PREFIX + deviceID
-        logging.info("command: " + command)
 
         process = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
         for line in process.stdout.readlines():
@@ -121,7 +118,6 @@ class FastbootCalcCPCB(object):
         logging.info("\r\n")
 
         command = FASTBOOT_CMD_CALCCPCB_PREFIX + deviceID
-        logging.info("command: " + command)
 
         process = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
         for line in process.stdout.readlines():
@@ -180,7 +176,6 @@ class FastbootLampCommand(object):
 
     @classmethod
     def setRedFast(self,deviceID):
-        logging.info("\r\n")
 
         command = FASTBOOT_CMD_LAMP_RED_FAST + deviceID
         logging.info("command: " + command)
@@ -211,7 +206,6 @@ class FastbootLampCommand(object):
         logging.info("\r\n")
 
         command = FASTBOOT_CMD_LAMP_GREEN_ON + deviceID
-        logging.info("command: " + command)
 
         process = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
         for line in process.stdout.readlines():

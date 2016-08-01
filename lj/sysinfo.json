@@ -14,7 +14,6 @@
                     {"key":"IPLOADER_ARGS", "value":"http://10.10.10.80/iploader/cos.zip"},
                     {"key":"OTALOADER_ARGS", "value":"--download_pid=1403 --table_id=10 --frequency=379 --symbol_rate=6900 --modulation=64"},
                     {"key":"MINIAPP_ARGS", "value":"recovery"},
-                    {"key":"STANDBY", "value":"0"},
                     {"key":"OTALOADER_DOWNLOAD_PID", "value":"1304"},
                     {"key":"OTALOADER_DOWNLOAD_TABLE_ID", "value":"160"},
                     {"key":"OTALOADER_FREQUENCY", "value":"379"},
@@ -56,8 +55,7 @@
                     {"key":"STB_MAC", "value":""},
                     {"key":"STB_CA_TYPE", "value":"IRDETO"},
                     {"key":"STB_CA_KEY", "value":""},
-                    {"key":"STB_ID", "value":""},
-                    {"key":"STB_CHIP_ID", "value":""}
+                    {"key":"STB_ID", "value":""}
                 ]
             },
             {

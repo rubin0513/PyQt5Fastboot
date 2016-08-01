@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'designer/mainwindow.ui'
 #
-# Created by: PyQt5 UI code generator 5.4.2
+# Created by: PyQt5 UI code generator 5.5.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -146,6 +146,8 @@ class Ui_MainWindow(object):
         self.action_query.setObjectName("action_query")
         self.action_backupDB = QtWidgets.QAction(MainWindow)
         self.action_backupDB.setObjectName("action_backupDB")
+        self.action_reset_mac = QtWidgets.QAction(MainWindow)
+        self.action_reset_mac.setObjectName("action_reset_mac")
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionExit)
         self.menuFile.addSeparator()
@@ -156,6 +158,8 @@ class Ui_MainWindow(object):
         self.menuHelp.addSeparator()
         self.menuTools.addSeparator()
         self.menuTools.addAction(self.action_backupDB)
+        self.menuTools.addSeparator()
+        self.menuTools.addAction(self.action_reset_mac)
         self.menuTools.addSeparator()
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuTools.menuAction())
@@ -184,4 +188,5 @@ class Ui_MainWindow(object):
         self.actionAbout.setText(_translate("MainWindow", "关于"))
         self.action_query.setText(_translate("MainWindow", "查询"))
         self.action_backupDB.setText(_translate("MainWindow", "备份数据库"))
+        self.action_reset_mac.setText(_translate("MainWindow", "重置MAC状态"))
 

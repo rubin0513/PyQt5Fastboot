@@ -338,6 +338,8 @@
     <addaction name="separator"/>
     <addaction name="action_backupDB"/>
     <addaction name="separator"/>
+    <addaction name="action_reset_mac"/>
+    <addaction name="separator"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuTools"/>
@@ -381,6 +383,11 @@
   <action name="action_backupDB">
    <property name="text">
     <string>备份数据库</string>
+   </property>
+  </action>
+  <action name="action_reset_mac">
+   <property name="text">
+    <string>重置MAC状态</string>
    </property>
   </action>
  </widget>
