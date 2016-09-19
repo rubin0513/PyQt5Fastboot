@@ -34,6 +34,7 @@ FASTBOOT_CMD_LAMP_RED_SLOW = 'fastboot getvar redslow -s '
 FASTBOOT_CMD_LAMP_GREEN_ON = 'fastboot getvar greenon -s '
 FASTBOOT_CMD_LAMP_GREEN_FAST = 'fastboot getvar greenfast -s '
 FASTBOOT_CMD_LAMP_GREEN_SLOW = 'fastboot getvar greenslow -s '
+FASTBOOT_CMD_ERASE_PREFIX = 'fastboot erase -s '
 
 FASTBOOT_ERROR_MSG_NO_DEVICE_ONLINE = '没有设备上线'
 FASTBOOT_ERROR_GET_SOCID = '获取设备号失败'
@@ -93,6 +94,7 @@ PRINTER_OK_MSG = '条码打印成功'
 PRINTER_BURN_NEEDED_MSG = '请先进行软件烧录'
 PRINTER_OP_TIMEOUT = 5
 PRINTER_ERROR_MSG = '条码打印失败'
+PRINTER_SN_NOT_EQUAL_TO_DB = '序列号出错'
 
 # query
 QUERY_FORM_TITLE = '查询结果'

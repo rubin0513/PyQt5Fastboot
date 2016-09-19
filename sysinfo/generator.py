@@ -7,6 +7,7 @@ import hashlib
 import os
 import glob
 import logging
+import shutil
 
 def RemoveFilesByExtName(dir = '.', ext = '*.o'):
     for i in glob.glob(os.path.join(dir, ext)):
@@ -81,6 +82,12 @@ def write_sysinfo(dictionary,modifyDict):
     dirPrex = "soc" + modifyDict['STB_ID']
     if not os.path.exists(dirPrex):
         os.mkdir(dirPrex)
+    else:
+        if os.path.exists(dirPrex + "/systeminfo_rw.img"):
+            os.remove(dirPrex + "/systeminfo_rw.img")
+
+        if os.path.exists(dirPrex + "/systeminfo_ro.img"):
+            os.remove(dirPrex + "/systeminfo_ro.img")
 
     wf = open(dirPrex + "/systeminfo_rw.img", "wb")
     rf = open(dirPrex + "/systeminfo_ro.img", "wb")

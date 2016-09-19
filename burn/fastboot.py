@@ -6,7 +6,7 @@ import logging
 import time
 
 from common.constant import FASTBOOT_CMD_DEVICES_PREFIX
-from common.constant import FASTBOOT_CMD_FLASH_PREFIX
+from common.constant import FASTBOOT_CMD_FLASH_PREFIX,FASTBOOT_CMD_ERASE_PREFIX
 from common.constant import BURN_ERROR_KEYWORD
 from common.constant import FASTBOOT_DEVICES_KEYWORD
 from common.constant import FASTBOOT_CMD_SOCID_PREFIX
@@ -144,6 +144,27 @@ class FastbootFlash(object):
         logging.info(deviceID + " command: " + command)
 
         ret = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+        for line in ret.stdout.readlines():
+            logging.info(line)
+            if str(line).count(BURN_ERROR_KEYWORD):
+                flag = False
+                break
+            else:
+                flag = True
+
+        ret.wait()
+
+        return flag
+
+    @classmethod
+    def erasePartition(self,deviceID,partition):
+        flag = False
+        logging.info("\r\n")
+
+        command = FASTBOOT_CMD_ERASE_PREFIX + deviceID + " " + partition
+        logging.info(deviceID + " command: " + command)
+
+        ret = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         for line in ret.stdout.readlines():
             logging.info(line)
             if str(line).count(BURN_ERROR_KEYWORD):
