@@ -262,6 +262,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             return sysXMLParse.getSysXMLDict()
 
     def onFirstRoundClicked(self):
+        self.firstRoundButton.setChecked(True)
+        self.firstRoundButton.setDisabled(True)
+
         self.firstPhaseErrCount = 0
         self.firstPhaseCount = 0
 
@@ -273,6 +276,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.onlineDevices = fastboot.getOnLineDevices()
         if not self.onlineDevices:
             QMessageBox.critical(self.firstRoundButton,ERRORTITLE,FASTBOOT_ERROR_MSG_NO_DEVICE_ONLINE)
+            self.firstRoundButton.setChecked(False)
+            self.firstRoundButton.setDisabled(False)
             return
 
         for i in range(len(self.onlineDevices)):
@@ -295,7 +300,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             else:
                 QMessageBox.critical(self.firstRoundButton,ERRORTITLE,self.firstPhaseErrCount + "pecs" + BURN_ERROR)
 
+        self.firstRoundButton.setChecked(False)
+        self.firstRoundButton.setDisabled(False)
+
     def onSecondRoundClicked(self):
+        self.secondRoundButton.setChecked(True)
+        self.secondRoundButton.setDisabled(True)
+
         self.secondPhaseCount = 0
         self.secondPhaseErrCount = 0
 
@@ -309,6 +320,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         if not self.onlineDevices:
             QMessageBox.critical(self.secondRoundButton,ERRORTITLE,FASTBOOT_ERROR_MSG_NO_DEVICE_ONLINE)
+            self.secondRoundButton.setChecked(False)
+            self.secondRoundButton.setDisabled(False)
             return
 
         for i in range(len(self.onlineDevices)):
@@ -332,7 +345,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 QMessageBox.critical(self.secondRoundButton, ERRORTITLE, self.secondPhaseErrCount + "pecs" + BURN_ERROR)
                 logging.error("SecondRound flash over error.")
 
+        self.secondRoundButton.setChecked(False)
+        self.secondRoundButton.setDisabled(False)
+
     def onPrinterClicked(self):
+        self.printButton.setChecked(True)
+        self.printButton.setDisabled(True)
+
         self.printPhaseCount = 0
         self.printPhaseErrCount = 0
 
@@ -363,6 +382,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 print("Print over.")
             else:
                 QMessageBox.critical(self.printButton, ERRORTITLE, self.printPhaseErrCount + "pecs" + BURN_ERROR)
+
+        self.printButton.setChecked(False)
+        self.printButton.setDisabled(False)
 
     def firstRoundThreadTarget(self, device):
         print('FirstRoundThreadTarget' + device)
@@ -733,6 +755,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def slotShowMessage(self,message):
         QMessageBox.critical(self,ERRORTITLE,message)
+
+        self.firstRoundButton.setChecked(False)
+        self.firstRoundButton.setDisabled(False)
+
+        self.secondRoundButton.setChecked(False)
+        self.secondRoundButton.setDisabled(False)
+
+        self.printButton.setChecked(False)
+        self.printButton.setDisabled(False)
 
     def showCurrentDevices(self):
         curDevices = []
